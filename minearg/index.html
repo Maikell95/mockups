@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="description" content="Maqueta de la web de MINEARG Network: Survival OP, SemiOP y Anárquico, tienda con todo el catálogo, pago en pesos, eventos, wiki de VIPs y votos.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MINEARG Network">
+<meta property="og:title" content="La nueva web de MINEARG Network (maqueta)">
+<meta property="og:description" content="Survival OP, SemiOP y Anárquico. Tienda con todo el catálogo, pago en pesos con Mercado Pago, eventos, wiki de VIPs y jugadores en vivo.">
+<meta property="og:image" content="https://maikell95.github.io/mockups/minearg/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://maikell95.github.io/mockups/minearg/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#8149ae">
+<title>MINEARG Network · Survival OP Custom</title>
+<link rel="icon" href="icono.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<div class="luna"></div>
+<div class="relampago"></div>
+<canvas id="noche"></canvas>
+<div class="niebla"></div>
+
+<div class="demo-bar">Maqueta de demostración para MINEARG Network · Diseñada por Maikel Ferrer → <a href="https://maikell95.github.io/Portfolio/" target="_blank" rel="noopener">Ver portafolio</a></div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand pixel" href="#inicio"><img src="icono.png" alt=""><span>MINEARG</span></a>
+    <div class="links" id="links">
+      <a href="#inicio" data-ruta="inicio">Inicio</a>
+      <a href="#modalidades" data-ruta="modalidades">Modalidades</a>
+      <a href="#tienda" data-ruta="tienda">Tienda</a>
+      <a href="#eventos" data-ruta="eventos">Eventos</a>
+      <a href="#votar" data-ruta="votar">Votar</a>
+      <a href="#wiki" data-ruta="wiki">Wiki</a>
+      <a href="#comunidad" data-ruta="comunidad">Comunidad</a>
+    </div>
+    <div class="acciones">
+      <div class="moneda" role="group" aria-label="Moneda"><button data-moneda="USD">USD</button><button data-moneda="ARS">ARS</button></div>
+      <button class="usuario" id="btn-usuario"><img id="avatar" src="https://mc-heads.net/avatar/MHF_Steve/32" alt=""><span id="nombre-usuario">Ingresá</span></button>
+      <button class="btn sm carrito-btn" id="btn-carrito">Carrito <span class="num" id="num-carrito">0</span></button>
+      <button class="btn sm ghost menu-movil" id="btn-menu" aria-label="Menú">☰</button>
+    </div>
+  </div>
+</nav>
+
+<div class="evento"><svg data-pixel="calabaza"></svg> <span><b>Halloween 2026</b> · cofre de Halloween en /warp cofres · termina en <span class="cuenta" id="cuenta">—</span> · <a href="#eventos">ver evento</a></span> <svg data-pixel="murcielago"></svg></div>
+
+<main id="vista"></main>
+
+<footer class="pie">
+  <div class="wrap">
+    <div>
+      <span class="pixel">MINEARG Network</span>
+      <p style="margin-top:6px;font-size:0.8rem">Maqueta de demostración, no es la web oficial. Catálogo, precios y ventajas de los VIP tomados de la tienda pública; los pesos se calculan al dólar oficial del día; lo marcado como <span class="ejemplo">ejemplo</span> es contenido de muestra; jugadores anonimizados. Diseñada y programada por Maikel Ferrer.</p>
+    </div>
+    <span>No afiliado a Mojang ni Microsoft.</span>
+  </div>
+</footer>
+
+
+<!-- carrito -->
+<div class="capa" id="capa"></div>
+<aside class="cajon" id="cajon" aria-label="Carrito">
+  <header>Tu carrito <button class="cerrar" data-cerrar>✕</button></header>
+  <div class="lineas" id="lineas"></div>
+  <footer>
+    <div class="total">Total <b id="total">0.00 USD</b></div>
+    <button class="btn gold full" id="btn-pagar">Pagar</button>
+  </footer>
+</aside>
+
+<!-- modal de producto -->
+<div class="modal" id="modal-producto" role="dialog" aria-modal="true">
+  <button class="cerrar" data-cerrar>✕</button>
+  <div id="contenido-producto"></div>
+</div>
+
+<!-- modal de identificación -->
+<div class="modal" id="modal-login" role="dialog" aria-modal="true">
+  <button class="cerrar" data-cerrar>✕</button>
+  <h3>Ingresá</h3>
+  <p class="muted">Escribí tu nombre de Minecraft para que la compra llegue a tu cuenta.</p>
+  <div class="campo"><label class="pixel" style="font-size:0.72rem" for="input-usuario">Usuario</label>
+    <input id="input-usuario" maxlength="16" placeholder="Tu usuario" autocomplete="off">
+  </div>
+  <div class="vista-previa"><img id="previa" src="https://mc-heads.net/avatar/MHF_Steve/48" alt=""><span id="previa-txt" class="muted">Así vas a aparecer en la tienda</span></div>
+  <button class="btn gold full" id="btn-entrar" style="margin-top:16px">Entrar</button>
+</div>
+
+<!-- modal de pago -->
+<div class="modal" id="modal-pago" role="dialog" aria-modal="true">
+  <button class="cerrar" data-cerrar>✕</button>
+  <h3>Así sería el pago</h3>
+  <p class="muted">Hoy, para pagar en pesos hay que abrir un ticket en el Discord y esperar a un staff. En la versión real elegís cómo pagar y lo recibís en el juego al momento.</p>
+  <div class="pago"><div style="color:#00b1ea">Mercado Pago<br><small class="muted">en pesos</small></div><div>Tarjeta<br><small class="muted">USD o ARS</small></div><div>PayPal<br><small class="muted">USD</small></div></div>
+  <p id="pago-total" class="pixel" style="text-align:center;color:var(--gold);margin:6px 0 10px"></p>
+  <ol style="color:var(--muted);padding-left:20px">
+    <li>Se verifica tu usuario.</li>
+    <li>Se cobra y se valida el precio en el servidor.</li>
+    <li>El juego te entrega lo comprado en la modalidad que corresponda, sin tickets.</li>
+  </ol>
+  <button class="btn full" data-cerrar style="margin-top:16px">Entendido</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
