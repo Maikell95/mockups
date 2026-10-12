@@ -73,7 +73,7 @@ nav .wrap { display: flex; align-items: center; gap: 22px; height: var(--nav-h);
 /* ---------- vistas ---------- */
 main { position: relative; z-index: 1; min-height: 70vh; }
 .vista { animation: aparecer 0.45s ease both; }
-.cabecera { padding: 60px 0 30px; }
+.cabecera { padding-top: 60px; padding-bottom: 30px; }
 .cabecera .label { font: 0.82rem "Silkscreen", monospace; color: var(--fire-2); margin-bottom: 8px; }
 .cabecera h1 { font: 700 clamp(2rem, 4.5vw, 3.2rem) "Silkscreen", monospace; line-height: 1.1; text-shadow: 4px 4px 0 #000; }
 .cabecera p { color: var(--muted); max-width: 60ch; margin-top: 12px; font-size: 1.08rem; }
