@@ -360,9 +360,9 @@ const VISTAS = {
       <div class="selector-rango">${NIVELES.map(n => `<a href="#rangos/${n}" class="${n === nivel ? 'on' : ''}" style="--rc:${COLOR_RANGO[n]}">${n}</a>`).join('')}</div>
       ${fichaRango(NIVELES.includes(nivel) ? nivel : 'Gold')}
       <h2 style="margin-top:50px">Todos los rangos globales</h2>
-      <div class="tabla-scroll"><table class="tabla"><tr><th>Rango</th><th>Modalidad</th><th>Global</th><th>Hogares</th><th>Protecciones</th><th>Misiones</th><th>Tumbas</th><th>Subasta</th><th>Tiendas</th></tr>
-      ${RANGOS.map(r => `<tr><td class="rango" style="color:${COLOR_RANGO[r.nombre]}">${r.nombre}</td><td>${usd(r.precioModalidad)}</td><td>${usd(r.precioGlobal)}</td><td>${r.limites.hogares}</td><td>${r.limites.protecciones}</td><td>${r.limites.misiones}</td><td>${r.limites.tumbas}</td><td>${r.limites.subasta}</td><td>${r.limites.tiendas}</td></tr>`).join('')}
-      <tr><td class="rango" style="color:var(--gold)">Prime</td><td colspan="2">79.99 USD/mes · 359.99 USD para siempre</td><td colspan="6">Límites de Ghost en todas las modalidades y recompensas por duplicado</td></tr></table></div>
+      <div class="tabla-scroll"><table class="tabla"><tr><th>Rango</th><th>Modalidad</th><th>Global</th><th>Hogares</th><th>Protecciones</th><th>Misiones</th><th>Tumbas</th><th>Subasta</th><th>Tiendas</th><th>Comandos</th></tr>
+      ${RANGOS.map(r => `<tr><td class="rango" style="color:${COLOR_RANGO[r.nombre]}">${r.nombre}</td><td>${usd(r.precioModalidad)}</td><td>${usd(r.precioGlobal)}</td><td>${r.limites.hogares}</td><td>${r.limites.protecciones}</td><td>${r.limites.misiones}</td><td>${r.limites.tumbas}</td><td>${r.limites.subasta}</td><td>${r.limites.tiendas}</td><td>${r.comandos.length}</td></tr>`).join('')}
+      <tr><td class="rango" style="color:var(--gold)">Prime</td><td colspan="2">79.99 USD/mes · 359.99 USD para siempre</td><td colspan="7">Límites de Ghost en todas las modalidades y recompensas por duplicado</td></tr></table></div>
       <p class="muted" style="margin-top:10px;font-size:0.9rem">Datos tal como aparecen en la tienda actual. Los beneficios pueden cambiar según la temporada de cada modalidad.</p>
     </div></section></div>`;
   },
