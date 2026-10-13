@@ -388,3 +388,17 @@ html { --sb-pos: 0px; }
   .corona-flota { left: calc(var(--hueco) - 19px); top: -20px; }
   .corona-flota svg { width: 32px; height: 32px; }
 }
+
+/* ---------- ambientación: Nether al fondo, chispas y calor ---------- */
+.nether { position: fixed; left: 0; right: 0; bottom: 0; height: 46vh; z-index: 0; pointer-events: none; overflow: hidden; }
+.nether .monte { position: absolute; left: -4%; width: 108%; bottom: 0; will-change: transform; }
+.nether .lejos { height: 100%; }
+.nether .media { height: 72%; }
+.nether .cerca { height: 34%; }
+#chispas { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
+.calor { position: fixed; left: 0; top: 0; width: 72px; height: 72px; margin: -36px 0 0 -36px; border-radius: 50%; z-index: 79; pointer-events: none;
+  backdrop-filter: url(#filtro-calor); -webkit-mask-image: radial-gradient(circle, #000 50%, transparent 84%); mask-image: radial-gradient(circle, #000 50%, transparent 84%);
+  opacity: 0; transition: opacity 0.4s; will-change: transform; }
+.calor.on { opacity: 1; }
+@media (hover: none), (prefers-reduced-motion: reduce) { .calor { display: none; } }
+@media (max-width: 920px) { .nether { height: 30vh; } }

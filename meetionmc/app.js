@@ -79,15 +79,33 @@ function pintar(raiz = document) {
 (() => {
   const lienzo = $('#brasas'), ctx = lienzo.getContext('2d');
   const COLORES = ['#fb7406', '#ffb347', '#c80300', '#ffcf4a', '#ff5a1f'];
-  let brasas = [];
+  let brasas = [], humo = [], ceniza = [];
+  // Humo oscuro que sube despacio desde la lava y ceniza gris que cae entre las brasas.
+  const bocanada = inicio => ({ x: Math.random() * innerWidth, y: inicio ? innerHeight * (0.4 + Math.random() * 0.6) : innerHeight + 120, r: 70 + Math.random() * 90, v: 0.18 + Math.random() * 0.25, o: Math.random() * 6.3 });
+  const copo = inicio => ({ x: Math.random() * innerWidth, y: inicio ? Math.random() * innerHeight : -10, t: Math.random() < 0.3 ? 3 : 2, v: 0.2 + Math.random() * 0.45, o: Math.random() * 6.3, g: 90 + Math.floor(Math.random() * 60) });
   const nueva = inicio => ({ x: Math.random() * innerWidth, y: inicio ? Math.random() * innerHeight : innerHeight + 10, t: Math.random() < 0.2 ? 4 : Math.random() < 0.6 ? 3 : 2, v: 0.4 + Math.random() * 1.3, o: Math.random() * 6.3, c: COLORES[Math.floor(Math.random() * COLORES.length)], vida: 0.6 + Math.random() * 0.4 });
   const ajustar = () => {
     lienzo.width = innerWidth * devicePixelRatio; lienzo.height = innerHeight * devicePixelRatio;
     ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
     brasas = Array.from({ length: Math.round(innerWidth * innerHeight / 9000) }, () => nueva(true));
+    humo = Array.from({ length: Math.max(4, Math.round(innerWidth / 220)) }, () => bocanada(true));
+    ceniza = Array.from({ length: Math.round(innerWidth * innerHeight / 26000) }, () => copo(true));
   };
   const dibujar = ms => {
     ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const h of humo) {
+      h.y -= h.v; h.x += Math.sin(ms / 2600 + h.o) * 0.3; h.r += 0.05;
+      const vida = Math.max(0, Math.min(1, h.y / innerHeight));
+      const g = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, h.r);
+      g.addColorStop(0, `rgba(30, 12, 10, ${0.32 * vida})`); g.addColorStop(1, 'rgba(30, 12, 10, 0)');
+      ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(h.x - h.r, h.y - h.r, h.r * 2, h.r * 2);
+      if (h.y < -h.r) Object.assign(h, bocanada(false));
+    }
+    for (const c of ceniza) {
+      c.y += c.v; c.x += Math.sin(ms / 1300 + c.o) * 0.45;
+      ctx.globalAlpha = 0.45; ctx.fillStyle = `rgb(${c.g}, ${c.g - 8}, ${c.g - 12})`; ctx.fillRect(Math.round(c.x), Math.round(c.y), c.t, c.t);
+      if (c.y > innerHeight + 10) Object.assign(c, copo(false));
+    }
     for (const b of brasas) {
       b.y -= b.v; b.x += Math.sin(ms / 900 + b.o) * 0.5;
       ctx.globalAlpha = b.vida * (0.25 + 0.75 * Math.max(0, Math.min(1, b.y / innerHeight))) * (0.7 + 0.3 * Math.sin(ms / 120 + b.o));
@@ -106,6 +124,95 @@ if (!reducido) {
   let pos = 0;
   setInterval(() => { pos = (pos - 3) % 270; raiz.setProperty('--sb-pos', pos + 'px'); }, 40);
 }
+
+/* ======================= Nether al fondo (3 capas con parallax) ======================= */
+(() => {
+  let semilla = 7;
+  const azar = () => (semilla = (semilla * 16807) % 2147483647) / 2147483647;
+  // Montañas de bloques: el perfil sube y baja a escalones, como el terreno de Minecraft.
+  const cordillera = (base, amp, bloque, suave) => {
+    let d = 'M0 400 V' + base, y = base;
+    for (let x = 0; x <= 2000; x += bloque) {
+      const objetivo = base - amp * (0.5 + 0.5 * Math.sin(x / suave + azar() * 0.8)) - azar() * amp * 0.35;
+      y = Math.max(20, Math.min(390, Math.round(objetivo / 10) * 10));
+      d += ` V${y} H${x + bloque}`;
+    }
+    return d + ' V400 Z';
+  };
+  // Fortaleza del Nether: puente con pilares y dos torres almenadas.
+  const fortaleza = () => {
+    let d = 'M1180 250 H1780 V276 H1180 Z';
+    for (let x = 1190; x < 1780; x += 74) d += ` M${x} 276 H${x + 22} V400 H${x} Z`;
+    for (const [x, w, top] of [[1240, 70, 150], [1640, 80, 120]]) {
+      d += ` M${x} ${top} H${x + w} V250 H${x} Z`;
+      for (let a = x; a < x + w; a += 20) d += ` M${a} ${top - 14} H${a + 10} V${top} H${a} Z`;
+    }
+    return d;
+  };
+  // [capa, relleno, borde iluminado por la lava, perfil]
+  const capas = [
+    ['.nether .lejos', '#2e0906', '#6e1708', cordillera(250, 170, 40, 160)],
+    ['.nether .media', '#1a0504', '#8a2208', cordillera(330, 110, 30, 120)],
+    ['.nether .cerca', '#050101', '#7a2408', cordillera(360, 60, 20, 70)],
+  ];
+  for (const [sel, color, borde, d] of capas) {
+    const svg = $(sel); if (!svg) continue;
+    svg.setAttribute('viewBox', '0 0 2000 400'); svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
+    // La misma silueta 3 px más arriba en color brasa hace de borde iluminado.
+    svg.innerHTML = `<path d="${d}" fill="${borde}" transform="translate(0 -3)" shape-rendering="crispEdges"/><path d="${d}" fill="${color}" shape-rendering="crispEdges"/>`;
+  }
+  // La fortaleza va delante de la cordillera media, más oscura y con su propio borde de brasa.
+  const media = $('.nether .media');
+  if (media) media.insertAdjacentHTML('beforeend', `<path d="${fortaleza()}" fill="#c4410c" transform="translate(0 -3)" shape-rendering="crispEdges"/><path d="${fortaleza()}" fill="#0d0202" shape-rendering="crispEdges"/>`);
+  if (reducido) return;
+  let mx = 0, pendiente = false;
+  const mover = () => {
+    pendiente = false;
+    $$('.nether .monte').forEach(svg => { const k = +svg.dataset.k; svg.style.transform = `translate(${(-mx * k * 60).toFixed(1)}px, ${(-Math.min(scrollY * k * 0.5, 140)).toFixed(1)}px)`; });
+  };
+  const pedir = () => { if (!pendiente) { pendiente = true; requestAnimationFrame(mover); } };
+  addEventListener('scroll', pedir, { passive: true });
+  addEventListener('pointermove', e => { mx = e.clientX / innerWidth - 0.5; pedir(); }, { passive: true });
+})();
+
+/* ======================= chispas al hacer clic ======================= */
+(() => {
+  if (reducido) return;
+  const lienzo = $('#chispas'), ctx = lienzo.getContext('2d');
+  const COLORES = ['#ffcf4a', '#ffb347', '#fb7406', '#ff5a1f', '#c80300'];
+  let chispas = [], activo = false;
+  const ajustar = () => { lienzo.width = innerWidth * devicePixelRatio; lienzo.height = innerHeight * devicePixelRatio; ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); };
+  const dibujar = () => {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    chispas = chispas.filter(c => (c.vida -= 1) > 0);
+    for (const c of chispas) {
+      c.x += c.vx; c.y += c.vy; c.vy += 0.18; c.vx *= 0.97;
+      ctx.globalAlpha = Math.min(1, c.vida / 20); ctx.fillStyle = c.c; ctx.fillRect(Math.round(c.x), Math.round(c.y), c.t, c.t);
+    }
+    if (chispas.length) requestAnimationFrame(dibujar); else { activo = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
+  };
+  ajustar(); addEventListener('resize', ajustar);
+  document.addEventListener('pointerdown', e => {
+    if (!e.target.closest('button, a, .producto, .card.hover, [data-copiar]')) return;
+    for (let i = 0; i < 22; i++) {
+      const ang = Math.random() * Math.PI * 2, vel = 1.5 + Math.random() * 4.5;
+      chispas.push({ x: e.clientX, y: e.clientY, vx: Math.cos(ang) * vel, vy: Math.sin(ang) * vel - 2.5, t: Math.random() < 0.3 ? 4 : 3, vida: 28 + Math.random() * 26, c: COLORES[Math.floor(Math.random() * COLORES.length)] });
+    }
+    if (!activo) { activo = true; requestAnimationFrame(dibujar); }
+  });
+})();
+
+/* ======================= calor alrededor del ratón ======================= */
+(() => {
+  const calor = $('.calor'); if (!calor || reducido || matchMedia('(hover: none)').matches) return;
+  let quieto;
+  addEventListener('pointermove', e => {
+    calor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+    calor.classList.add('on');
+    clearTimeout(quieto); quieto = setTimeout(() => calor.classList.remove('on'), 1600);
+  }, { passive: true });
+  document.addEventListener('pointerleave', () => calor.classList.remove('on'));
+})();
 
 /* ======================= datos en vivo ======================= */
 const vivo = { jugadores: null, miembros: null, enLinea: null };

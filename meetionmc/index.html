@@ -20,12 +20,18 @@
 <link rel="icon" href="icono.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilos.css?v=6">
+<link rel="stylesheet" href="estilos.css?v=11">
 </head>
 <body>
 
-<canvas id="brasas"></canvas>
 <div class="lava"></div>
+<div class="nether" aria-hidden="true"><svg class="monte lejos" data-k="0.03"></svg><svg class="monte media" data-k="0.07"></svg><svg class="monte cerca" data-k="0.12"></svg></div>
+<canvas id="brasas"></canvas>
+<canvas id="chispas"></canvas>
+<div class="calor" aria-hidden="true"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="filtro-calor" x="-10%" y="-10%" width="120%" height="120%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.06 0.12" numOctaves="2" seed="4" result="ruido"><animate attributeName="baseFrequency" dur="2.4s" values="0.06 0.12;0.08 0.16;0.06 0.12" repeatCount="indefinite"/></feTurbulence>
+  <feDisplacementMap in="SourceGraphic" in2="ruido" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 
 <div class="demo-bar">Maqueta de demostración para MeeTion Network · Diseñada por Maikel Ferrer → <a href="https://maikell95.github.io/Portfolio/" target="_blank" rel="noopener">Ver portafolio</a></div>
 
@@ -112,6 +118,6 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="app.js?v=5"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>
