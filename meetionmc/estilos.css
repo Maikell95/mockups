@@ -394,10 +394,10 @@ html { --sb-pos: 0px; }
 .nether { position: fixed; left: 0; right: 0; bottom: -28vh; height: 86vh; z-index: 0; pointer-events: none; overflow: hidden; will-change: transform; }
 .nether .monte { position: absolute; left: -4%; width: 108%; will-change: transform; }
 .nether .lejos { bottom: 38%; height: 60%; }
-.nether .media { bottom: 34%; height: 48%; }
+.nether .media, .nether .blazes, .nether .fortaleza { bottom: 34%; height: 48%; }
 .nether .cerca { bottom: 0; height: 30%; }
 .nether .lago { position: absolute; left: 0; width: 100%; bottom: 12%; height: 24%; image-rendering: pixelated; }
-.nether .brillo-lava { position: absolute; left: 0; right: 0; bottom: 33%; height: 22%; background: linear-gradient(0deg, rgba(255, 130, 30, 0.28), transparent); animation: respirar 3.5s ease-in-out infinite; }
+.nether .brillo-lava { position: absolute; left: 0; right: 0; bottom: 33%; height: 22%; background: linear-gradient(0deg, rgba(255, 110, 30, 0.14), transparent); animation: respirar 3.5s ease-in-out infinite; }
 .calor { position: fixed; left: 0; top: 0; width: 72px; height: 72px; margin: -36px 0 0 -36px; border-radius: 50%; z-index: 79; pointer-events: none;
   -webkit-mask-image: radial-gradient(circle, #000 50%, transparent 84%); mask-image: radial-gradient(circle, #000 50%, transparent 84%);
   opacity: 0; transition: opacity 0.4s; will-change: transform; }

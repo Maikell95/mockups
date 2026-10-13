@@ -142,14 +142,54 @@ if (!reducido) {
     return d + ' V400 Z';
   };
   // Fortaleza del Nether: puente con pilares y dos torres almenadas.
+  // Fortaleza del Nether como la del juego: puente con barandilla de valla, pilares y dos torres con volumen
+  // (cara lateral en sombra, remate más ancho con valla encima y ventanas con barrotes). Va en su propia capa,
+  // por delante de los blazes, para que puedan esconderse detrás.
+  const TORRES = [{ x: 1240, w: 70, top: 150 }, { x: 1640, w: 80, top: 118 }];
   const fortaleza = () => {
-    let d = 'M1180 250 H1780 V276 H1180 Z';
-    for (let x = 1190; x < 1780; x += 74) d += ` M${x} 276 H${x + 22} V400 H${x} Z`;
-    for (const [x, w, top] of [[1240, 70, 150], [1640, 80, 120]]) {
-      d += ` M${x} ${top} H${x + w} V250 H${x} Z`;
-      for (let a = x; a < x + w; a += 20) d += ` M${a} ${top - 14} H${a + 10} V${top} H${a} Z`;
+    const r = (x, y, w, h, fill, extra = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" ${extra}/>`;
+    const LUZ = '#b5481a', SOMBRA = '#170a0d', VALLA = '#2c161a', CLARO = '#43222a';
+    let s = `<defs><linearGradient id="luz-lava" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff7a20" stop-opacity="0.45"/><stop offset="1" stop-color="#ff7a20" stop-opacity="0"/></linearGradient></defs>`;
+    // pilares con arcos escalonados entre ellos (como los puentes de la fortaleza del juego)
+    const PILARES = [];
+    for (let x = 1190; x < 2060; x += 74) PILARES.push(x);   // el puente sigue hasta salir por la derecha
+    for (const x of PILARES) s += r(x, 276, 22, 124, 'url(#ladrillo)') + r(x + 22, 276, 5, 124, SOMBRA) + r(x, 330, 27, 70, 'url(#luz-lava)');
+    for (let i = 0; i < PILARES.length - 1; i++) {
+      const a = PILARES[i] + 27, b = PILARES[i + 1];
+      s += r(a, 276, 10, 14, 'url(#ladrillo)') + r(a, 290, 5, 7, 'url(#ladrillo)') + r(b - 10, 276, 10, 14, 'url(#ladrillo)') + r(b - 5, 290, 5, 7, 'url(#ladrillo)');
     }
-    return d;
+    // tablero del puente con su canto iluminado y barandilla de valla
+    s += r(1180, 250, 900, 26, 'url(#ladrillo)') + r(1180, 274, 900, 4, SOMBRA) + r(1180, 250, 900, 2, LUZ);
+    s += r(1180, 236, 900, 3, VALLA);
+    for (let x = 1182; x < 2080; x += 16) s += r(x, 236, 3, 14, VALLA);
+    for (const { x, w, top } of TORRES) {
+      const alto = 250 - top;
+      s += r(x - 6, 228, w + 24, 22, 'url(#ladrillo)') + r(x - 6, 228, w + 24, 2, LUZ);                 // base más ancha
+      s += r(x + w, top + 6, 12, alto - 6, SOMBRA);                                                       // cara lateral en sombra
+      s += r(x, top, w, alto, 'url(#ladrillo)');                                                          // fachada
+      const mitad = top + Math.round(alto * 0.45);
+      s += r(x - 3, mitad, w + 18, 6, 'url(#ladrillo)') + r(x - 3, mitad, w + 18, 2, CLARO);              // cornisa a media altura
+      s += r(x - 8, top - 12, w + 22, 12, 'url(#ladrillo)') + r(x - 8, top - 12, w + 22, 2, LUZ) + r(x + w + 2, top - 10, 12, 10, SOMBRA); // remate en voladizo
+      // valla del remate con pilarcitos en las esquinas
+      s += r(x - 8, top - 30, w + 22, 3, VALLA);
+      for (let a = x - 4; a <= x + w + 8; a += 11) s += r(a, top - 30, 3, 18, VALLA);
+      s += r(x - 8, top - 36, 8, 24, 'url(#ladrillo)') + r(x + w + 6, top - 36, 8, 24, 'url(#ladrillo)') + r(x - 8, top - 36, 8, 2, LUZ) + r(x + w + 6, top - 36, 8, 2, LUZ);
+      // ventanas con luz de lava y barrotes, una encima y otra debajo de la cornisa
+      for (const vy of [top + 14, mitad + 16]) {
+        if (vy + 22 > 226) continue;
+        const vx = x + w / 2 - 11;
+        s += r(vx, vy, 22, 22, '#120608') + r(vx, vy + 12, 22, 10, '#5a1f0a') + r(vx, vy + 18, 22, 4, '#a4401a');
+        for (let b = vx + 2; b < vx + 22; b += 5) s += r(b, vy, 2, 22, VALLA);
+      }
+    }
+    // spawner de blazes encima de la torre grande: jaula negra con fuego que late dentro
+    const t = TORRES[1], cx = t.x + t.w / 2 - 14, cy = t.top - 62;
+    s += r(cx - 4, cy + 28, 36, 6, 'url(#ladrillo)');
+    s += r(cx, cy, 28, 28, '#1b1d22') + r(cx + 3, cy + 3, 22, 22, '#2a1408');
+    s += `<rect x="${cx + 6}" y="${cy + 8}" width="16" height="14" fill="#d8641a"><animate attributeName="fill" values="#d8641a;#f0a030;#b8481a;#d8641a" dur="0.9s" repeatCount="indefinite"/></rect>`;
+    for (let b = cx + 3; b < cx + 28; b += 6) s += r(b, cy, 2, 28, '#1b1d22');
+    for (let b = cy + 3; b < cy + 28; b += 6) s += r(cx, b, 28, 2, '#1b1d22');
+    return s;
   };
   // Colores del Nether de Minecraft: netherrack para las montañas (más oscuro cuanto más cerca, a contraluz)
   // y ladrillo del Nether para la fortaleza. Cada capa lleva su textura de píxeles.
@@ -171,11 +211,13 @@ if (!reducido) {
     const id = patron.match(/id="([^"]+)"/)[1];
     svg.setAttribute('viewBox', '0 0 2000 400'); svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
     // La misma silueta 3 px más arriba en color de lava hace de borde iluminado.
-    svg.innerHTML = `<defs>${patron}${sel.endsWith('media') ? ladrillo : ''}</defs><path d="${d}" fill="${borde}" transform="translate(0 -3)" shape-rendering="crispEdges"/><path d="${d}" fill="url(#${id})" shape-rendering="crispEdges"/>`;
+    svg.innerHTML = `<defs>${patron}</defs><path d="${d}" fill="${borde}" transform="translate(0 -3)" shape-rendering="crispEdges"/><path d="${d}" fill="url(#${id})" shape-rendering="crispEdges"/>`;
   }
-  // La fortaleza va delante de la cordillera media, en ladrillo del Nether, con borde de lava.
-  const media = $('.nether .media');
-  if (media) media.insertAdjacentHTML('beforeend', `<path d="${fortaleza()}" fill="#ff9a2b" transform="translate(0 -2)" shape-rendering="crispEdges"/><path d="${fortaleza()}" fill="url(#ladrillo)" shape-rendering="crispEdges"/>`);
+  const fort = $('.nether .fortaleza');
+  if (fort) {
+    fort.setAttribute('viewBox', '0 0 2000 400'); fort.setAttribute('preserveAspectRatio', 'xMidYMax slice');
+    fort.innerHTML = `<defs>${ladrillo}</defs><g shape-rendering="crispEdges">${fortaleza()}</g>`;
+  }
   // Al hacer scroll, toda la escena sube hasta enseñar el lago de lava y el suelo; cada capa además se desplaza un poco distinto.
   const escena = $('.nether');
   let mx = 0, pendiente = false;
@@ -195,7 +237,8 @@ if (!reducido) {
   // Lago de lava: se pinta a baja resolución (1 píxel = 5 px) para que parezca de Minecraft.
   const lago = $('.nether .lago'); if (!lago) return;
   const lctx = lago.getContext('2d');
-  const PALETA = [[90, 18, 4], [140, 34, 6], [190, 62, 10], [226, 88, 15], [247, 135, 28], [255, 178, 58], [255, 224, 122]];
+  // Colores apagados: la lava está lejos y no debe robar protagonismo al contenido.
+  const PALETA = [[58, 14, 8], [82, 20, 9], [108, 30, 11], [134, 42, 13], [158, 58, 17], [180, 78, 24], [200, 104, 36]];
   let W = 0, H = 0, img, burbujas = [];
   const ajustarLago = () => { W = Math.ceil(lago.clientWidth / 5); H = Math.ceil(lago.clientHeight / 5); lago.width = W; lago.height = H; img = lctx.createImageData(W, H); };
   const pintarLago = t => {
@@ -204,7 +247,7 @@ if (!reducido) {
       // Mezcla de ondas que se mueven: zonas claras y oscuras que fluyen como la lava.
       let v = Math.sin(x * 0.13 + t * 0.9) + Math.sin(y * 0.45 - t * 1.3 + x * 0.05) + Math.sin((x + y * 2) * 0.07 + t * 0.6) + Math.sin(x * 0.031 - t * 0.4) * 1.5;
       v = (v + 4.5) / 9;
-      if (y < 2) v = Math.min(1, v + 0.35 - y * 0.1);   // la superficie brilla más
+      if (y < 2) v = Math.min(1, v + 0.2 - y * 0.08);   // la superficie brilla más
       const c = PALETA[Math.max(0, Math.min(PALETA.length - 1, Math.floor(v * PALETA.length)))];
       const i = (y * W + x) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255;
     }
@@ -213,12 +256,12 @@ if (!reducido) {
     if (Math.random() < 0.12 && burbujas.length < 10) burbujas.push({ x: Math.random() * W, y: 2 + Math.random() * (H - 4), r: 0, max: 1 + Math.random() * 2.2, s: 0 });
     burbujas = burbujas.filter(b => {
       if (b.s === 0) {
-        b.r += 0.08; lctx.fillStyle = '#ffe07a'; lctx.fillRect(Math.round(b.x - b.r), Math.round(b.y - b.r), Math.ceil(b.r * 2), Math.ceil(b.r * 2));
-        lctx.fillStyle = '#ff9a2b'; lctx.fillRect(Math.round(b.x - b.r) + 1, Math.round(b.y - b.r) + 1, Math.max(0, Math.ceil(b.r * 2) - 2), Math.max(0, Math.ceil(b.r * 2) - 2));
+        b.r += 0.08; lctx.fillStyle = '#c8783a'; lctx.fillRect(Math.round(b.x - b.r), Math.round(b.y - b.r), Math.ceil(b.r * 2), Math.ceil(b.r * 2));
+        lctx.fillStyle = '#a4501c'; lctx.fillRect(Math.round(b.x - b.r) + 1, Math.round(b.y - b.r) + 1, Math.max(0, Math.ceil(b.r * 2) - 2), Math.max(0, Math.ceil(b.r * 2) - 2));
         if (b.r >= b.max) b.s = 1;
         return true;
       }
-      b.s++; lctx.fillStyle = '#ffd23a';
+      b.s++; lctx.fillStyle = '#c8783a';
       for (const [dx, dy] of [[-1, -1], [1, -1], [0, -2], [-2, 0], [2, 0]]) lctx.fillRect(Math.round(b.x + dx * b.s * 0.7), Math.round(b.y + dy * b.s * 0.7), 1, 1);
       return b.s < 5;
     });
@@ -232,6 +275,69 @@ if (!reducido) {
     if (ms - ultimo > 50 && lago.getBoundingClientRect().top < innerHeight) { ultimo = ms; pintarLago(ms / 1000); }
     requestAnimationFrame(bucle);
   };
+  requestAnimationFrame(bucle);
+})();
+
+/* ======================= blazes sobre la fortaleza ======================= */
+// Salen del spawner de la torre grande, vuelan con un movimiento ondulado (suma de senos, nunca en línea recta)
+// sobre la fortaleza y, al acabar su vida, bajan a esconderse detrás de una torre. Luego reaparece otro en el spawner.
+(() => {
+  const lienzo = $('.nether .blazes'); if (!lienzo) return;
+  const ctx = lienzo.getContext('2d');
+  const CABEZA = ['..yyyy..', '.yYYYYy.', 'yYkYYkYy', 'yYkYYkYy', 'yYYYYYYy', '.yYooYy.', '..yyyy..'];
+  const COL = { y: '#ffd23a', Y: '#f7a21a', k: '#3a1a00', o: '#c86a10' };
+  const SPAWNER = { x: 1680, y: 70 };
+  const TORRES = [{ x: 1275, y: 200 }, { x: 1680, y: 190 }];
+  let W = 0, H = 0, esc = 1, ox = 0, oy = 0, blazes = [], proximo = 0;
+  const ajustar = () => {
+    W = lienzo.clientWidth; H = lienzo.clientHeight;
+    lienzo.width = W * devicePixelRatio; lienzo.height = H * devicePixelRatio;
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); ctx.imageSmoothingEnabled = false;
+    esc = Math.max(W / 2000, H / 400); ox = (W - 2000 * esc) / 2; oy = H - 400 * esc;   // igual que preserveAspectRatio="xMidYMax slice"
+  };
+  const nuevo = ahora => ({
+    nace: ahora, vida: 9000 + Math.random() * 7000, fase: Math.random() * 100,
+    ax: 180 + Math.random() * 140, ay: 40 + Math.random() * 30, cx: 1280 + Math.random() * 400, cy: 120 + Math.random() * 50,
+    fx: 0.00021 + Math.random() * 0.0001, fy: 0.00037 + Math.random() * 0.00015, torre: TORRES[Math.random() < 0.5 ? 0 : 1],
+  });
+  // Posición en coordenadas de la fortaleza (2000×400): sale del spawner, vuela y al final baja tras una torre.
+  const posicion = (b, ahora) => {
+    const t = ahora - b.nace;
+    const vuelo = { x: b.cx + Math.sin(t * b.fx + b.fase) * b.ax + Math.sin(t * b.fx * 2.3 + b.fase) * 40,
+                    y: b.cy + Math.sin(t * b.fy + b.fase * 1.7) * b.ay + Math.cos(t * b.fx * 3.1) * 12 };
+    const salida = Math.min(1, t / 1600), entrada = Math.max(0, (t - (b.vida - 2200)) / 2200);
+    const suave = k => k * k * (3 - 2 * k);
+    let x = SPAWNER.x + (vuelo.x - SPAWNER.x) * suave(salida), y = SPAWNER.y + (vuelo.y - SPAWNER.y) * suave(salida);
+    if (entrada > 0) { const k = suave(Math.min(1, entrada)); x += (b.torre.x - x) * k; y += (b.torre.y + 40 - y) * k; }
+    return { x, y };
+  };
+  const dibujarBlaze = (x, y, t, p) => {
+    const sx = ox + x * esc, sy = oy + y * esc;
+    // brillo de fuego alrededor
+    const g = ctx.createRadialGradient(sx, sy + 4 * p, 0, sx, sy + 4 * p, 10 * p);
+    g.addColorStop(0, 'rgba(255, 150, 40, 0.35)'); g.addColorStop(1, 'rgba(255, 150, 40, 0)');
+    ctx.fillStyle = g; ctx.fillRect(sx - 10 * p, sy - 6 * p, 20 * p, 20 * p);
+    // varas que giran alrededor del cuerpo: las de detrás se pintan antes que la cabeza
+    const varas = [];
+    for (let i = 0; i < 6; i++) {
+      const a = t / 260 + i * Math.PI / 3 * (i < 3 ? 1 : -1), capa = i < 3 ? 0 : 1;
+      varas.push({ x: sx + Math.cos(a) * 6 * p - p, y: sy + (4 + capa * 4) * p + Math.sin(a * 2) * p, z: Math.sin(a) });
+    }
+    const vara = v => { ctx.fillStyle = '#b8770c'; ctx.fillRect(Math.round(v.x), Math.round(v.y), 2 * p, 4 * p); ctx.fillStyle = '#ffcf3a'; ctx.fillRect(Math.round(v.x), Math.round(v.y), p, 4 * p); };
+    varas.filter(v => v.z < 0).forEach(vara);
+    CABEZA.forEach((f, j) => [...f].forEach((ch, i) => { if (COL[ch]) { ctx.fillStyle = COL[ch]; ctx.fillRect(Math.round(sx + (i - 4) * p), Math.round(sy + (j - 3) * p), p, p); } }));
+    varas.filter(v => v.z >= 0).forEach(vara);
+  };
+  const dibujar = ahora => {
+    ctx.clearRect(0, 0, W, H);
+    if (ahora > proximo && blazes.length < 3) { blazes.push(nuevo(ahora)); proximo = ahora + 3500 + Math.random() * 3000; }
+    const p = Math.max(1, Math.round(esc * 1.5));   // pequeños: están lejos
+    blazes = blazes.filter(b => ahora - b.nace < b.vida);
+    for (const b of blazes) { const { x, y } = posicion(b, ahora); dibujarBlaze(x, y + Math.sin(ahora / 300 + b.fase) * 4, ahora, p); }
+  };
+  ajustar(); addEventListener('resize', ajustar);
+  if (reducido) { dibujar(performance.now()); return; }
+  const bucle = ahora => { if (lienzo.getBoundingClientRect().bottom > 0) dibujar(ahora); requestAnimationFrame(bucle); };
   requestAnimationFrame(bucle);
 })();
 
