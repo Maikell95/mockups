@@ -253,17 +253,17 @@ if (!reducido) {
     }
     lctx.putImageData(img, 0, 0);
     // Burbujas que crecen, explotan y salpican.
-    if (Math.random() < 0.12 && burbujas.length < 10) burbujas.push({ x: Math.random() * W, y: 2 + Math.random() * (H - 4), r: 0, max: 1 + Math.random() * 2.2, s: 0 });
+    if (Math.random() < 0.12 && burbujas.length < 10) burbujas.push({ x: Math.random() * W, y: 2 + Math.random() * (H - 4), r: 0, max: 0.5 + Math.random() * 0.7, s: 0 });   // pequeñas: la lava está lejos
     burbujas = burbujas.filter(b => {
       if (b.s === 0) {
-        b.r += 0.08; lctx.fillStyle = '#c8783a'; lctx.fillRect(Math.round(b.x - b.r), Math.round(b.y - b.r), Math.ceil(b.r * 2), Math.ceil(b.r * 2));
+        b.r += 0.05; lctx.fillStyle = '#c8783a'; lctx.fillRect(Math.round(b.x - b.r), Math.round(b.y - b.r), Math.ceil(b.r * 2), Math.ceil(b.r * 2));
         lctx.fillStyle = '#a4501c'; lctx.fillRect(Math.round(b.x - b.r) + 1, Math.round(b.y - b.r) + 1, Math.max(0, Math.ceil(b.r * 2) - 2), Math.max(0, Math.ceil(b.r * 2) - 2));
         if (b.r >= b.max) b.s = 1;
         return true;
       }
       b.s++; lctx.fillStyle = '#c8783a';
-      for (const [dx, dy] of [[-1, -1], [1, -1], [0, -2], [-2, 0], [2, 0]]) lctx.fillRect(Math.round(b.x + dx * b.s * 0.7), Math.round(b.y + dy * b.s * 0.7), 1, 1);
-      return b.s < 5;
+      for (const [dx, dy] of [[-1, -1], [1, -1], [0, -1]]) lctx.fillRect(Math.round(b.x + dx * b.s * 0.5), Math.round(b.y + dy * b.s * 0.5), 1, 1);
+      return b.s < 3;
     });
   };
   ajustarLago(); addEventListener('resize', ajustarLago);
