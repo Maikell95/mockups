@@ -262,11 +262,20 @@ function arrancarFeed() {
   if (!reducido) feedTimer = setInterval(() => add('ahora'), 5000);
 }
 const selectorMoneda = () => `<div class="moneda" role="group" aria-label="Moneda"><button data-moneda="USD" class="${moneda === 'USD' ? 'on' : ''}">USD</button><button data-moneda="ARS" class="${moneda === 'ARS' ? 'on' : ''}">ARS</button></div>`;
+const MES = new Date().toLocaleDateString('es', { month: 'long' });
 const widgets = () => `
-  <div class="card widget"><h4><svg data-pixel="corona" style="width:20px;height:20px"></svg> Top #1 del mes <span class="ejemplo">ejemplo</span></h4>
-    <div class="top-donador"><img src="https://mc-heads.net/avatar/MHF_Witch/44" alt=""><div><b>Jugador****</b><br><span class="muted" style="font-size:0.85rem">El que más aportó este mes</span></div></div></div>
-  <div class="card widget"><h4>Compras recientes <span class="en-vivo">EN VIVO</span></h4><ul class="feed" id="feed"></ul></div>
-  <div class="card widget"><h4>Meta del mes <span class="ejemplo">ejemplo</span></h4><div class="meta-bar"><i id="meta"></i></div><p class="muted" style="font-size:0.85rem">Al 100 %, llaves de Halloween para todo el servidor.</p></div>`;
+  <div class="card widget"><h4>Compras recientes <span class="en-vivo">EN VIVO</span></h4><ul class="feed" id="feed"></ul></div>`;
+// Franja de arriba de la tienda: se ve nada más entrar, sin hacer scroll.
+const franjaTienda = () => `
+  <div class="franja-tienda">
+    <div class="card donador-mes"><span class="corona-flota"><svg data-pixel="corona"></svg></span>
+      <img src="https://mc-heads.net/body/MHF_Witch/120" alt="">
+      <div><p class="label" style="margin:0">&gt; top #1 de ${MES} <span class="ejemplo">ejemplo</span></p><h3>Jugador****</h3>
+        <p class="muted">El que más aportó este mes. Sale acá y se lleva un premio.</p></div></div>
+    <div class="card meta-mes"><div class="meta-cab"><p class="label" style="margin:0">&gt; meta de ${MES} <span class="ejemplo">ejemplo</span></p><b class="pixel" id="meta-pct">0%</b></div>
+      <div class="meta-bar grande"><i id="meta"></i></div>
+      <p class="muted">Cada compra suma. Al llegar al 100 %: <b style="color:var(--gold)">llaves de Halloween</b> para todo el servidor.</p></div>
+  </div>`;
 
 /* ======================= vistas ======================= */
 const VISTAS = {
@@ -322,6 +331,7 @@ const VISTAS = {
     const opcion = (x, c) => `<option value="${x.slug}/${c ? c.slug : 'destacados'}" ${(c ? cat === c : x.slug === m.slug && !cat) ? 'selected' : ''}>${esc(c ? c.emoji + ' ' + c.nombre : NOMBRE_DESTACADOS[x.slug])} (${(c ? c.productos : x.evento).length})</option>`;
     return `<div class="vista"><div class="wrap">
       <div class="cabecera" style="padding-bottom:22px"><p class="label">&gt; tienda oficial</p><h1>Tienda</h1><p>Pagás y lo recibís en el juego al instante. ${todosLosProductos().length} productos de la tienda actual, en dólares o en pesos.</p></div>
+      ${franjaTienda()}
       <div class="tienda">
         <aside class="lateral">
           <div class="card mods">${CATALOGO.map(x => `
@@ -445,7 +455,7 @@ function render(mismaVista) {
   $('#links').classList.remove('abierto');
   $$('[data-moneda]').forEach(b => b.classList.toggle('on', b.dataset.moneda === moneda));
   pintar($('#vista')); pintarVivo(); arrancarFeed();
-  const meta = $('#meta'); if (meta) setTimeout(() => meta.style.width = '58%', 300);
+  const meta = $('#meta'); if (meta) setTimeout(() => { meta.style.width = '58%'; const pct = $('#meta-pct'); if (pct) contar(pct, 58, '%'); }, 300);
   obsReveal?.disconnect();
   if (mismaVista === true) { $$('.reveal', $('#vista')).forEach(el => el.classList.add('visible')); scrollTo(0, y); }
   else {

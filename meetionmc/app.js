@@ -100,6 +100,17 @@ function pintar(raiz = document) {
   ajustar(); addEventListener('resize', ajustar); requestAnimationFrame(dibujar);
 })();
 
+/* barra de scroll que va cambiando entre amarillo, naranja y rojo, como el fuego */
+if (!reducido) {
+  const raiz = document.documentElement.style;
+  setInterval(() => {
+    const h = 25 + 25 * Math.sin(performance.now() / 1400);   // 0 = rojo, 25 = naranja, 50 = amarillo
+    raiz.setProperty('--sb-claro', `hsl(${h + 8} 100% 66%)`);
+    raiz.setProperty('--sb', `hsl(${h} 100% 50%)`);
+    raiz.setProperty('--sb-oscuro', `hsl(${Math.max(0, h - 6)} 100% 30%)`);
+  }, 90);
+}
+
 /* ======================= datos en vivo ======================= */
 const vivo = { jugadores: null, miembros: null, enLinea: null };
 const contar = (el, total, suf = '') => {
@@ -237,11 +248,20 @@ function arrancarFeed() {
   ['hace 5 h', 'hace 3 h', 'hace 2 h', 'hace 1 h', 'hace 25 min', 'hace 4 min'].forEach(add);
   if (!reducido) feedTimer = setInterval(() => add('ahora'), 5000);
 }
+const MES = new Date().toLocaleDateString('es', { month: 'long' });
 const widgets = () => `
-  <div class="card widget"><h4><svg data-pixel="corona" style="width:20px;height:20px"></svg> Top donador <span class="ejemplo">ejemplo</span></h4>
-    <div class="top-donador"><img src="https://mc-heads.net/avatar/MHF_Blaze/44" alt=""><div><b>Jugador****</b><br><span class="muted" style="font-size:0.85rem">El jugador top de este mes</span></div></div></div>
-  <div class="card widget"><h4>Compras recientes <span class="en-vivo">EN VIVO</span></h4><ul class="feed" id="feed"></ul></div>
-  <div class="card widget"><h4>Meta mensual <span class="ejemplo">ejemplo</span></h4><div class="meta-bar"><i id="meta"></i></div><p class="muted" style="font-size:0.85rem">Al 100 %, recompensa para todo el servidor.</p></div>`;
+  <div class="card widget"><h4>Compras recientes <span class="en-vivo">EN VIVO</span></h4><ul class="feed" id="feed"></ul></div>`;
+// Franja de arriba de la tienda: se ve nada más entrar, sin hacer scroll.
+const franjaTienda = () => `
+  <div class="franja-tienda">
+    <div class="card donador-mes"><span class="corona-flota"><svg data-pixel="corona"></svg></span>
+      <img src="https://mc-heads.net/body/MHF_Blaze/120" alt="">
+      <div><p class="label" style="margin:0">&gt; top donador de ${MES} <span class="ejemplo">ejemplo</span></p><h3>Jugador****</h3>
+        <p class="muted">El que más apoyó a la network este mes. Sale aquí y gana un rango de regalo.</p></div></div>
+    <div class="card meta-mes"><div class="meta-cab"><p class="label" style="margin:0">&gt; meta de ${MES} <span class="ejemplo">ejemplo</span></p><b class="pixel" id="meta-pct">0%</b></div>
+      <div class="meta-bar grande"><i id="meta"></i></div>
+      <p class="muted">Cada compra suma. Al llegar al 100 %: <b style="color:var(--gold)">KeyAll global y doble de llaves</b> en todas las modalidades.</p></div>
+  </div>`;
 
 /* ======================= vistas ======================= */
 const VISTAS = {
@@ -284,6 +304,7 @@ const VISTAS = {
     const titulo = cat ? `${cat.emoji} ${cat.nombre}` : NOMBRE_DESTACADOS[m.slug] || 'Destacados';
     return `<div class="vista"><div class="wrap">
       <div class="cabecera" style="padding-bottom:22px"><p class="label">&gt; tienda oficial</p><h1>Tienda</h1><p>Paga y lo recibes en el juego al instante. ${todosLosProductos().length} productos de las ${CATALOGO.length} secciones de la tienda actual.</p></div>
+      ${franjaTienda()}
       <div class="tienda">
         <aside class="lateral">
           <div class="card mods">${CATALOGO.map(x => `
@@ -397,7 +418,7 @@ function render() {
   $$('#links a').forEach(a => a.classList.toggle('activo', a.dataset.ruta === vista));
   $('#links').classList.remove('abierto');
   pintar($('#vista')); pintarVivo(); arrancarFeed();
-  const meta = $('#meta'); if (meta) setTimeout(() => meta.style.width = '62%', 300);
+  const meta = $('#meta'); if (meta) setTimeout(() => { meta.style.width = '62%'; const pct = $('#meta-pct'); if (pct) contar(pct, 62, '%'); }, 300);
   obsReveal?.disconnect();
   obsReveal = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obsReveal.unobserve(e.target); } }), { threshold: 0.12 });
   $$('.reveal', $('#vista')).forEach((el, i) => { el.style.transitionDelay = (i % 4) * 70 + 'ms'; obsReveal.observe(el); });

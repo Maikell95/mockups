@@ -393,3 +393,30 @@ html { scrollbar-color: var(--fire-2) #08060d; scrollbar-width: auto; }
   .moneda button { padding: 6px 6px; }
 }
 @media (max-width: 560px) { .acciones .moneda { display: none; } }
+
+/* ---------- franja de la tienda: donador y meta del mes ---------- */
+.franja-tienda { display: grid; grid-template-columns: 1fr 1.3fr; gap: 22px; margin-bottom: 26px; }
+.donador-mes { display: flex; align-items: center; gap: 20px; background: linear-gradient(120deg, #3a2208, var(--card) 60%); box-shadow: inset 0 0 0 2px var(--gold), 6px 6px 0 #000; overflow: visible; }
+.donador-mes > div { min-width: 0; }
+.donador-mes img { width: 72px; height: auto; image-rendering: pixelated; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.6)); animation: flotar 4s ease-in-out infinite; }
+.donador-mes h3 { font: 700 1.4rem "Silkscreen", monospace; color: var(--gold); margin: 4px 0; text-shadow: 3px 3px 0 #000; }
+.donador-mes p.muted { font-size: 0.9rem; }
+.corona-flota { position: absolute; top: -18px; left: 30px; }
+.corona-flota svg { width: 40px; height: 40px; animation: flotar 2.6s ease-in-out infinite; filter: drop-shadow(0 0 10px rgba(255, 207, 74, 0.7)); }
+.meta-mes { display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.meta-cab { display: flex; justify-content: space-between; align-items: baseline; }
+.meta-cab b { font-size: 1.8rem; color: var(--fire-3); text-shadow: 3px 3px 0 #000; }
+.meta-bar.grande { height: 30px; margin: 0; }
+.meta-bar.grande i { box-shadow: 0 0 18px rgba(245, 154, 50, 0.5); }
+.meta-mes p.muted { font-size: 0.92rem; }
+@media (max-width: 920px) { .franja-tienda { grid-template-columns: 1fr; gap: 16px; } }
+@media (max-width: 560px) {
+  .donador-mes { gap: 14px; padding: 16px; }
+  .donador-mes img { width: 48px; }
+  .donador-mes h3 { font-size: 1.05rem; overflow-wrap: anywhere; }
+  .donador-mes p.muted { display: none; }
+  .meta-mes { padding: 16px; gap: 8px; }
+  .meta-cab b { font-size: 1.3rem; }
+  .meta-bar.grande { height: 22px; }
+  .meta-mes p.muted { font-size: 0.82rem; }
+}

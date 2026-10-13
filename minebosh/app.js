@@ -306,11 +306,20 @@ function arrancarFeed() {
   ['hace 5 h', 'hace 3 h', 'hace 2 h', 'hace 1 h', 'hace 25 min', 'hace 4 min'].forEach(add);
   if (!reducido) feedTimer = setInterval(() => add('ahora'), 5000);
 }
+const MES = new Date().toLocaleDateString('es', { month: 'long' });
 const widgets = () => `
-  <div class="card widget"><h4><svg data-pixel="corona" style="width:20px;height:20px"></svg> Top comprador <span class="ejemplo">ejemplo</span></h4>
-    <div class="top-donador"><img src="https://mc-heads.net/avatar/MHF_Enderman/44" alt=""><div><b>Jugador****</b><br><span class="muted" style="font-size:0.85rem">El que más compró este mes</span></div></div></div>
-  <div class="card widget"><h4>Compras recientes <span class="en-vivo">EN VIVO</span></h4><ul class="feed" id="feed"></ul></div>
-  <div class="card widget"><h4>Mega KeyAll (x2 llaves de kits)</h4><div class="meta-bar"><i id="meta"></i></div><p class="muted" style="font-size:0.85rem">Meta de la comunidad: al 100 %, KeyAll doble para todos.</p></div>`;
+  <div class="card widget"><h4>Compras recientes <span class="en-vivo">EN VIVO</span></h4><ul class="feed" id="feed"></ul></div>`;
+// Franja de arriba de la tienda: se ve nada más entrar, sin hacer scroll.
+const franjaTienda = () => `
+  <div class="franja-tienda">
+    <div class="card donador-mes"><span class="corona-flota"><svg data-pixel="corona"></svg></span>
+      <img src="https://mc-heads.net/body/MHF_Enderman/120" alt="">
+      <div><p class="label" style="margin:0">&gt; top comprador de ${MES} <span class="ejemplo">ejemplo</span></p><h3>Jugador****</h3>
+        <p class="muted">El que más compró este mes. Sale aquí, en la portada de la tienda.</p></div></div>
+    <div class="card meta-mes"><div class="meta-cab"><p class="label" style="margin:0">&gt; mega keyall (x2 llaves de kits)</p><b class="pixel" id="meta-pct">0%</b></div>
+      <div class="meta-bar grande"><i id="meta"></i></div>
+      <p class="muted">Meta de la comunidad que ya tienen en su tienda: cada compra suma y al 100 % hay <b style="color:var(--gold)">KeyAll con el doble de llaves</b> para todos.</p></div>
+  </div>`;
 const ip = () => `<div class="ip"><div><small>Java 1.16 – 1.21</small><code>${IP}</code></div><div><small>Bedrock · puerto</small><code>${PUERTO_BEDROCK}</code></div><button class="btn" data-copiar>Copiar IP</button></div>`;
 
 /* --- comparador de rangos --- */
@@ -394,6 +403,7 @@ const VISTAS = {
     const cat = m.categorias.find(c => c.slug === catSlug) || m.categorias[0];
     return `<div class="vista"><div class="wrap">
       <div class="cabecera" style="padding-bottom:22px"><p class="label">&gt; tienda oficial</p><h1>Tienda</h1><p>Pagas y lo recibes en el juego al instante. ${todosLosProductos().length} productos de la tienda actual, cada uno en su modalidad.</p></div>
+      ${franjaTienda()}
       <div class="tienda">
         <aside class="lateral">
           <div class="card mods">${CATALOGO.map(x => `
@@ -514,7 +524,7 @@ function render() {
   $$('#links a').forEach(a => a.classList.toggle('activo', a.dataset.ruta === vista));
   $('#links').classList.remove('abierto');
   pintar($('#vista')); pintarVivo(); arrancarFeed();
-  const meta = $('#meta'); if (meta) setTimeout(() => meta.style.width = '37%', 300);
+  const meta = $('#meta'); if (meta) setTimeout(() => { meta.style.width = '37%'; const pct = $('#meta-pct'); if (pct) contar(pct, 37, '%'); }, 300);
   obsReveal?.disconnect();
   obsReveal = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obsReveal.unobserve(e.target); } }), { threshold: 0.12 });
   $$('.reveal', $('#vista')).forEach((el, i) => { el.style.transitionDelay = (i % 4) * 70 + 'ms'; obsReveal.observe(el); });
