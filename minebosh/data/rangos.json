@@ -1,0 +1,204 @@
+[
+ {
+  "nombre": "Hero",
+  "precioModalidad": 4.99,
+  "precioGlobal": 14.99,
+  "limites": {
+   "hogares": "6",
+   "protecciones": "4",
+   "misiones": "4",
+   "tumbas": "5",
+   "subasta": "8",
+   "tiendas": "12"
+  },
+  "comandos": [
+   "/tpahere",
+   "/tptoggle",
+   "/craft",
+   "/hat",
+   "/back",
+   "/feed",
+   "/enderchest",
+   "/ec",
+   "/near",
+   "/ignore",
+   "/pv",
+   "/clan war",
+   "/ps flag",
+   "/ps me"
+  ],
+  "kitDias": null
+ },
+ {
+  "nombre": "Nova",
+  "precioModalidad": 9.99,
+  "precioGlobal": 29.99,
+  "limites": {
+   "hogares": "8",
+   "protecciones": "4",
+   "misiones": "5",
+   "tumbas": "6",
+   "subasta": "8",
+   "tiendas": "14"
+  },
+  "comandos": [
+   "/tpahere",
+   "/tptoggle",
+   "/craft",
+   "/hat",
+   "/back",
+   "/feed",
+   "/enderchest",
+   "/ec",
+   "/near",
+   "/ignore",
+   "/pv",
+   "/smithingtable"
+  ],
+  "kitDias": null
+ },
+ {
+  "nombre": "Meteor",
+  "precioModalidad": 19.99,
+  "precioGlobal": 59.99,
+  "limites": {
+   "hogares": "16",
+   "protecciones": "8",
+   "misiones": "8",
+   "tumbas": "14",
+   "subasta": "12",
+   "tiendas": "20"
+  },
+  "comandos": [
+   "/tpahere",
+   "/tptoggle",
+   "/craft",
+   "/hat",
+   "/back",
+   "/feed",
+   "/enderchest",
+   "/ec",
+   "/near",
+   "/ignore",
+   "/pv",
+   "/repair",
+   "/loom"
+  ],
+  "kitDias": 2
+ },
+ {
+  "nombre": "Gold",
+  "precioModalidad": 29.99,
+  "precioGlobal": 89.99,
+  "limites": {
+   "hogares": "22",
+   "protecciones": "10",
+   "misiones": "8",
+   "tumbas": "24",
+   "subasta": "15",
+   "tiendas": "25"
+  },
+  "comandos": [
+   "/tpahere",
+   "/tptoggle",
+   "/craft",
+   "/hat",
+   "/back",
+   "/feed",
+   "/enderchest",
+   "/ec",
+   "/near",
+   "/ignore",
+   "/pv",
+   "/repair",
+   "/clear"
+  ],
+  "kitDias": 3
+ },
+ {
+  "nombre": "Bosh",
+  "precioModalidad": 39.99,
+  "precioGlobal": 119.99,
+  "limites": {
+   "hogares": "40",
+   "protecciones": "16",
+   "misiones": "9",
+   "tumbas": "34",
+   "subasta": "34",
+   "tiendas": "30"
+  },
+  "comandos": [
+   "/tpahere",
+   "/tptoggle",
+   "/craft",
+   "/hat",
+   "/back",
+   "/feed",
+   "/enderchest",
+   "/ec",
+   "/near",
+   "/ignore",
+   "/pv",
+   "/repair",
+   "/repai"
+  ],
+  "kitDias": 4
+ },
+ {
+  "nombre": "Peak",
+  "precioModalidad": 59.99,
+  "precioGlobal": 179.99,
+  "limites": {
+   "hogares": "99",
+   "protecciones": "12",
+   "misiones": "10",
+   "tumbas": "64",
+   "subasta": "99",
+   "tiendas": "40"
+  },
+  "comandos": [
+   "/suicide",
+   "/tpahere",
+   "/tptoggle",
+   "/craft",
+   "/hat",
+   "/back",
+   "/feed",
+   "/enderchest",
+   "/ec",
+   "/near",
+   "/ignore",
+   "/pv",
+   "/repair"
+  ],
+  "kitDias": 5
+ },
+ {
+  "nombre": "Ghost",
+  "precioModalidad": 79.99,
+  "precioGlobal": 239.99,
+  "limites": {
+   "hogares": "∞",
+   "protecciones": "∞",
+   "misiones": "20",
+   "tumbas": "∞",
+   "subasta": "∞",
+   "tiendas": "60"
+  },
+  "comandos": [
+   "/jump",
+   "/ice",
+   "/burn",
+   "/compass",
+   "/xp show",
+   "/invsee",
+   "/getpos",
+   "/suicide",
+   "/tpahere",
+   "/tptoggle",
+   "/craft",
+   "/hat"
+  ],
+  "kitDias": 7
+ }
+]
