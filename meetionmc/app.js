@@ -300,8 +300,9 @@ if (!reducido) {
   const nuevo = ahora => ({
     nace: ahora, vida: 16000 + Math.random() * 10000, fase: Math.random() * 100,
     ax: 180 + Math.random() * 140, ay: 40 + Math.random() * 30, cx: 1280 + Math.random() * 400, cy: 120 + Math.random() * 50,
-    fx: 0.00008 + Math.random() * 0.00004, fy: 0.00014 + Math.random() * 0.00006,   // vuelo calmado torre: TORRES[Math.random() < 0.5 ? 0 : 1],
+    fx: 0.00008 + Math.random() * 0.00004, fy: 0.00014 + Math.random() * 0.00006, torre: TORRES[Math.random() < 0.5 ? 0 : 1],
   });
+  // Vuelo calmado: frecuencias bajas y poca amplitud extra.
   // Posición en coordenadas de la fortaleza (2000×400): sale del spawner, vuela y al final baja tras una torre.
   const posicion = (b, ahora) => {
     const t = ahora - b.nace;
