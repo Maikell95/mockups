@@ -104,21 +104,41 @@ function pintar(raiz = document) {
   const POSADO = ['....KKKK....', '...KrrrrK...', '..KrrwwkK...', '..KrrwwrsK..', '..KrrrrrSK..', '..KrrrrrK...', '.KryyrrrK...', '.KryyyrrK...', '.KruuyyrK...', '.KruuurrK...', '..KuuurK....', '..KkKKkK....', '...KuuK.....', '...KuuK.....', '...KuUK.....', '....KK......'];
   // Se posan encima de las letras de los títulos visibles (cada línea de texto es una percha posible).
   const TITULOS = '.hero h1, h1, h2, .cabecera h1, .modalidad h3, .acceso h3, .tipo-rango h3, .insignia, .discord h2';
-  const lineas = el => { const rg = document.createRange(); rg.selectNodeContents(el); return [...rg.getClientRects()].filter(r => r.width > 40); };
-  const enPantalla = p => {
-    if (!p.el.isConnected) return null;
-    const r = lineas(p.el)[p.linea]; if (!r) return null;
-    return { x: r.left + r.width * p.fx, y: r.top + r.height * 0.16 };
+  // La percha es una letra concreta: el loro apoya las patas en el primer píxel de tinta de esa letra
+  // (no en la caja de la línea, que tiene aire por encima). La altura de la tinta se mide con la fuente real.
+  const medidor = document.createElement('canvas').getContext('2d'), cacheTinta = {};
+  const tinta = (letra, fuente) => {
+    const k = fuente + '|' + letra;
+    if (k in cacheTinta) return cacheTinta[k];
+    medidor.font = fuente; const m = medidor.measureText(letra);
+    const t = { asc: m.actualBoundingBoxAscent, fa: m.fontBoundingBoxAscent, fd: m.fontBoundingBoxDescent };
+    if (document.fonts.check(fuente)) cacheTinta[k] = t;   // no se guarda hasta que la fuente real ha cargado
+    return t;
   };
+  const rango = document.createRange();
+  const enPantalla = p => {
+    if (!p.nodo.isConnected) return null;
+    rango.setStart(p.nodo, p.i); rango.setEnd(p.nodo, p.i + 1);
+    const r = rango.getBoundingClientRect(); if (!r.width) return null;
+    const cs = getComputedStyle(p.nodo.parentElement);
+    let letra = p.nodo.data[p.i];
+    if (cs.textTransform === 'uppercase') letra = letra.toUpperCase(); else if (cs.textTransform === 'lowercase') letra = letra.toLowerCase();
+    const t = tinta(letra, `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`);
+    const base = r.top + (r.height - (t.fa + t.fd)) / 2 + t.fa;   // línea base de la letra
+    return { x: r.left + r.width / 2, y: Math.round(base - t.asc) };
+  };
+  const textos = el => { const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), out = []; while (w.nextNode()) if (w.currentNode.data.trim()) out.push(w.currentNode); return out; };
   const E = 1.5;   // tamaño de cada píxel del loro (pequeños)
   const perchaLibre = (actual) => {
     const libres = [];
-    for (const el of new Set($$(TITULOS))) lineas(el).forEach((r, i) => {
-      if (r.top < 110 || r.bottom > innerHeight - 10 || r.right < 0 || r.left > innerWidth) return;
-      const fx = 0.12 + Math.random() * 0.76;
-      const ocupada = loros.some(l => l.percha && l.percha.el === el && l.percha.linea === i && Math.abs(l.percha.fx - fx) < 0.25);
-      if (!ocupada && !(actual && actual.el === el && actual.linea === i)) libres.push({ el, linea: i, fx });
-    });
+    for (const el of new Set($$(TITULOS))) for (const nodo of textos(el)) {
+      const letras = [...nodo.data].map((c, i) => /[A-Za-zÁÉÍÓÚÑáéíóúñ0-9]/.test(c) ? i : -1).filter(i => i >= 0);
+      if (!letras.length) continue;
+      const p = { nodo, i: letras[Math.floor(Math.random() * letras.length)] };
+      const pos = enPantalla(p); if (!pos || pos.y < 110 || pos.y > innerHeight - 10 || pos.x < 20 || pos.x > innerWidth - 20) continue;
+      const ocupada = loros.some(l => { const q = l.percha && enPantalla(l.percha); return q && Math.abs(q.x - pos.x) < 30 && Math.abs(q.y - pos.y) < 20; });
+      if (!ocupada && !(actual && actual.nodo === nodo && actual.i === p.i)) libres.push(p);
+    }
     return libres.length ? libres[Math.floor(Math.random() * libres.length)] : null;
   };
   const loro = (ahora) => {
@@ -174,7 +194,7 @@ function pintar(raiz = document) {
       if (b.estado === 'posado') {
         // posado: de vez en cuando se gira; al rato despega hacia otra percha o se va de la pantalla
         if (ms > b.gira) { b.mira = !b.mira; b.gira = ms + 1500 + Math.random() * 3000; }
-        b.ultimo = destino; dibujarSprite(POSADO, destino.x - 6 * E, destino.y - 16 * E, E, b.mira, cl);
+        b.ultimo = destino; dibujarSprite(POSADO, destino.x - 6 * E, destino.y - 12 * E, E, b.mira, cl);   // la fila 11 son las patas
         if (ms > b.hasta) {
           const otra = Math.random() < 0.6 ? perchaLibre(b.percha) : null;
           b.desde = { x: destino.x, y: destino.y - 10 * E + scrollY }; b.t0 = ms; b.estado = 'vuela';
@@ -188,7 +208,7 @@ function pintar(raiz = document) {
       const x = b.desde.x + (destino.x - b.desde.x) * s2;
       // la salida se guardó en coordenadas de la página: al hacer scroll el loro se mueve con ella y no queda flotando
       const desdeY = b.desde.y - scrollY;
-      const y = desdeY + (destino.y - 18 * E - desdeY) * s2 - Math.sin(Math.PI * k) * 70;
+      const y = desdeY + (destino.y - 10 * E - desdeY) * s2 - Math.sin(Math.PI * k) * 70;
       const ala = k > 0.85 ? 'medio' : ALETEO[Math.floor(ms / 95 + b.fase) % 4];
       b.ultimo = { x, y }; dibujarSprite(LORO[ala], x - 16 * E, y - 12 * E, E, destino.x < b.desde.x, cl);
       if (k >= 1) {
