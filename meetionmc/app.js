@@ -100,15 +100,11 @@ function pintar(raiz = document) {
   ajustar(); addEventListener('resize', ajustar); requestAnimationFrame(dibujar);
 })();
 
-/* barra de scroll que va cambiando entre amarillo, naranja y rojo, como el fuego */
+/* barra de scroll de fuego: los colores suben de abajo arriba mezclándose */
 if (!reducido) {
   const raiz = document.documentElement.style;
-  setInterval(() => {
-    const h = 25 + 25 * Math.sin(performance.now() / 1400);   // 0 = rojo, 25 = naranja, 50 = amarillo
-    raiz.setProperty('--sb-claro', `hsl(${h + 8} 100% 66%)`);
-    raiz.setProperty('--sb', `hsl(${h} 100% 50%)`);
-    raiz.setProperty('--sb-oscuro', `hsl(${Math.max(0, h - 6)} 100% 30%)`);
-  }, 90);
+  let pos = 0;
+  setInterval(() => { pos = (pos - 3) % 270; raiz.setProperty('--sb-pos', pos + 'px'); }, 40);
 }
 
 /* ======================= datos en vivo ======================= */

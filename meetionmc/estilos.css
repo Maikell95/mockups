@@ -330,15 +330,20 @@ footer.pie a.port { color: var(--gold); text-decoration: underline; }
 }
 
 /* ---------- barra de scroll temática ---------- */
-html { --sb-claro: #ffd27a; --sb: var(--fire-2); --sb-oscuro: var(--fire-dark); scrollbar-color: var(--sb) #0a0202; scrollbar-width: auto; }
+html { --sb-pos: 0px; }
+/* Firefox no admite barras con degradado: color de fuego plano. Chrome usa la barra de abajo. */
+@supports (-moz-appearance: none) { html { scrollbar-color: var(--fire-2) #0a0202; } }
 ::-webkit-scrollbar { width: 14px; height: 14px; }
 ::-webkit-scrollbar-track { background: #0a0202; border-left: 3px solid #000; box-shadow: inset 2px 0 0 #2a0d0b; }
+/* Llamas que suben: el degradado rojo → naranja → amarillo se desplaza hacia arriba dentro de la barra. */
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--sb-claro), var(--sb) 45%, var(--sb-oscuro));
+  background: repeating-linear-gradient(0deg, #e01a00 0px, #ff5a00 45px, #ff9a00 90px, #ffd23a 135px, #ff9a00 180px, #ff5a00 225px, #e01a00 270px);
+  background-size: 100% 270px;
+  background-position: 0 var(--sb-pos);
   border: 3px solid #000;
-  box-shadow: inset -3px -3px 0 var(--sb-oscuro), inset 3px 3px 0 var(--sb-claro);
+  box-shadow: inset -3px -3px 0 rgba(110, 2, 0, 0.55), inset 3px 3px 0 rgba(255, 240, 180, 0.55);
 }
-::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ffd27a, var(--fire-3) 45%, var(--fire-2)); }
+::-webkit-scrollbar-thumb:hover { filter: brightness(1.15); }
 ::-webkit-scrollbar-thumb:active { box-shadow: inset 3px 3px 0 var(--fire-dark), inset -3px -3px 0 #ffd27a; }
 ::-webkit-scrollbar-corner { background: #0a0202; }
 .lateral::-webkit-scrollbar, .lineas::-webkit-scrollbar, .modal::-webkit-scrollbar, .modal ul::-webkit-scrollbar { width: 10px; }
