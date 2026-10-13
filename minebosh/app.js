@@ -277,25 +277,45 @@ function pintar(raiz = document) {
   const lejos = cordillera(200, 150, 10, 170);
   // Montaña de Minecraft: piedra en vetas horizontales (piedra, andesita, grava, con alguna mena),
   // cubierta por una franja de hierba que sigue el perfil y tierra justo debajo. Tonos apagados por la distancia.
-  let vetas = r(0, 0, 48, 48, '#3c4340');
-  for (const [y, h, c] of [[5, 3, '#454c48'], [14, 2, '#343a37'], [22, 4, '#424840'], [33, 3, '#373e3a'], [41, 2, '#454c48']]) for (let x = 0; x < 48; x += 8) vetas += r(x, y + (x % 16 ? 1 : 0), 8, h, c);
+  let vetas = r(0, 0, 48, 48, '#454c48');
+  for (const [y, h, c] of [[5, 3, '#535a55'], [14, 2, '#363c39'], [22, 4, '#4d544b'], [33, 3, '#3a413d'], [41, 2, '#555c57']]) for (let x = 0; x < 48; x += 8) vetas += r(x, y + (x % 16 ? 1 : 0), 8, h, c);
   for (let i = 0; i < 70; i++) vetas += r(Math.floor(azar() * 48), Math.floor(azar() * 48), azar() < 0.4 ? 2 : 1, 1, ['#4a514c', '#303633', '#40463e', '#3a5a32'][i % 4]);
   for (let i = 0; i < 4; i++) vetas += r(Math.floor(azar() * 44), Math.floor(azar() * 44), 4, 2, '#35532e');   // musgo
   vetas += r(9, 20, 2, 2, '#202422') + r(30, 7, 2, 1, '#202422') + r(15, 38, 1, 1, '#6e5640');   // carbón y algo de hierro
   const defsMonte = `<pattern id="pj-vetas" width="48" height="48" patternUnits="userSpaceOnUse">${vetas}</pattern>`;
-  const monte = d => `<path d="${d}" fill="#4f7a3e" transform="translate(0 -2)" shape-rendering="crispEdges"/>
+  // Volumen: el perfil es una escalera de bloques. Donde baja hacia la derecha, la cara mira al sol (luz);
+  // donde sube, la cara mira a la izquierda (sombra). En algunas cumbres crece una mata.
+  const caras = d => {
+    let o = '', prev = null, x = 0;
+    d.replace(/V(\d+) H(\d+)/g, (_, yy, xx) => {
+      const y2 = +yy;
+      if (prev !== null && y2 !== prev) {
+        if (y2 - prev > 12) o += r(x - 3, prev + 16, 3, Math.min(14, y2 - prev - 4), '#7d877f', 'opacity="0.35"');   // cara iluminada (solo en escalones grandes)
+        else if (prev - y2 > 12) o += r(x, y2 + 16, 4, Math.min(14, prev - y2 - 4), '#141816', 'opacity="0.35"');   // cara en sombra
+      }
+      if (prev !== null && y2 < prev && azar() < 0.22) o += r(x + 2, y2 - 5, 8, 5, '#2f5a26') + r(x + 3, y2 - 7, 5, 2, '#4a7e38') + r(x + 7, y2 - 4, 2, 1, '#e0c040');   // mata con flor
+      prev = y2; x = +xx; return '';
+    });
+    return o;
+  };
+  const monte = d => `<path d="${d}" fill="#6f9e4e" transform="translate(0 -2)" shape-rendering="crispEdges"/>
     <path d="${d}" fill="url(#pj-pasto-m)" shape-rendering="crispEdges"/>
     <path d="${d}" fill="url(#pj-tierra-m)" transform="translate(0 8)" shape-rendering="crispEdges"/>
-    <path d="${d}" fill="url(#pj-vetas)" transform="translate(0 16)" shape-rendering="crispEdges"/>`;
+    <path d="${d}" fill="url(#pj-vetas)" transform="translate(0 16)" shape-rendering="crispEdges"/>
+    <g shape-rendering="crispEdges">${caras(d)}</g>
+    <rect x="0" y="200" width="2000" height="200" fill="url(#pj-base-oscura)"/>`;
+  // Cordillera más lejana: silueta azulada por la bruma, detrás de todo.
+  const bruma = cordillera(150, 120, 14, 230);
   const XC = 430;   // x de la cascada (en coordenadas 0–2000)
   // Pico rocoso más alto que la cordillera: la cascada sale de una grieta cerca de la cima.
   let pico = 'M290 400', y = 400;
   for (let k = 0; k <= 26; k++) { const x = 290 + k * 10, alt = 400 - Math.min(k, 26 - k) * 30 - azar() * 14; y = Math.round(alt / 6) * 6; pico += ` V${y} H${x + 10}`; }
   pico += ' V400 Z';
-  preparar('.paisaje .pj-lejos', `<defs>${defsMonte}${textura('pj-pasto-m', '#335a29', ['#3b6830', '#2c5024', '#447336'])}${textura('pj-tierra-m', '#3e2e20', ['#4a3726', '#34271b', '#52402c'])}${textura('pj-roca', '#2d4a35', ['#335440', '#273f2e', '#3a5c44'])}${textura('pj-pico', '#3a4840', ['#46564c', '#2e3a33', '#4f6052', '#3a5c44'], 34)}
+  preparar('.paisaje .pj-lejos', `<defs>${defsMonte}<linearGradient id="pj-base-oscura" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1a10" stop-opacity="0"/><stop offset="1" stop-color="#0e1a10" stop-opacity="0.55"/></linearGradient>${textura('pj-pasto-m', '#3c6a2e', ['#467a36', '#335c27', '#52893f', '#5e9648'])}${textura('pj-tierra-m', '#3e2e20', ['#4a3726', '#34271b', '#52402c'])}${textura('pj-roca', '#2d4a35', ['#335440', '#273f2e', '#3a5c44'])}${textura('pj-pico', '#3a4840', ['#46564c', '#2e3a33', '#4f6052', '#3a5c44'], 34)}
     <pattern id="pj-agua-cae" width="12" height="24" patternUnits="userSpaceOnUse">
       ${r(0, 0, 12, 24, '#3a6a80')}${r(2, 0, 2, 10, '#6f9cb2')}${r(7, 6, 2, 12, '#55879e')}${r(4, 14, 2, 8, '#8fb6c8')}${r(9, 18, 2, 6, '#6f9cb2')}
       <animateTransform attributeName="patternTransform" type="translate" from="0 0" to="0 24" dur="1.1s" repeatCount="indefinite"/></pattern></defs>
+    <path d="${bruma}" fill="#3d5a52" transform="translate(0 -2)" opacity="0.8" shape-rendering="crispEdges"/><path d="${bruma}" fill="#2a423c" shape-rendering="crispEdges"/>
     ${monte(lejos)}${monte(pico)}
 `);
 
@@ -345,23 +365,29 @@ function pintar(raiz = document) {
   };
   const imagen = (a, x, y, esc) => `<image href="${a.url}" x="${Math.round(x)}" y="${Math.round(y)}" width="${a.w * esc}" height="${a.h * esc}" style="image-rendering:pixelated"/>`;
 
-  // 3) Arbustos bajos detrás del río: matas redondeadas en dos tonos con el canto de arriba iluminado
-  //    y alguna flor. Se dejan libres los lados del templo.
-  const mata = document.createElement('canvas'); mata.width = 400; mata.height = 34;
+  // 3) Arbustos detrás del río con volumen: dos filas de matas. Cada mata tiene sombra abajo a la izquierda,
+  //    tono medio, luz arriba a la derecha y textura de hojas; algunas llevan flores o bayas.
+  const mata = document.createElement('canvas'); mata.width = 400; mata.height = 40;
   const gm = mata.getContext('2d');
   const disco = (cx, cy, rad, col) => { gm.fillStyle = col; for (let y = -rad; y <= rad; y++) { const m = Math.floor(Math.sqrt(rad * rad - y * y) + 0.35); gm.fillRect(Math.round(cx - m), Math.round(cy + y), m * 2 + 1, 1); } };
-  for (const [capa, col, luz, alto] of [[0, '#152f13', '#27491f', 16], [1, '#1d4019', '#3b6a2c', 22]]) {
-    for (let x = 0; x < 400; x += 6 + azar() * 10) {
-      if (x > 140 + capa * 2 && x < 188 - capa * 2) continue;      // hueco delante del templo
-      const rad = 4 + Math.round(azar() * (capa ? 6 : 4));
-      disco(x, 34 - alto + rad * 0.6, rad, col);
+  const FILAS_MATA = [
+    { base: 30, tonos: ['#0f240d', '#17351a', '#21471c', '#2d5a24'], rad: [4, 7], paso: [6, 12] },
+    { base: 40, tonos: ['#14310f', '#1f4a18', '#2e6623', '#4a8a36'], rad: [5, 10], paso: [8, 16] },
+  ];
+  FILAS_MATA.forEach((f, capa) => {
+    gm.fillStyle = f.tonos[0]; gm.fillRect(0, f.base - 6, 400, 6);
+    for (let x = -4; x < 404; x += f.paso[0] + azar() * (f.paso[1] - f.paso[0])) {
+      if (x > 138 + capa * 3 && x < 190 - capa * 3) continue;      // hueco delante del templo
+      const rad = Math.round(f.rad[0] + azar() * (f.rad[1] - f.rad[0])), cy = f.base - rad + 2;
+      disco(x, cy + 1, rad, f.tonos[0]);                                  // sombra/contorno
+      disco(x - 0.5, cy, rad - 1, f.tonos[1]);                            // cuerpo
+      disco(x + rad * 0.2, cy - rad * 0.25, Math.max(1, Math.round(rad * 0.62)), f.tonos[2]);   // volumen
+      disco(x + rad * 0.35, cy - rad * 0.45, Math.max(1, Math.round(rad * 0.3)), f.tonos[3]);   // luz
+      for (let k = 0; k < rad * 2; k++) { gm.fillStyle = f.tonos[azar() < 0.5 ? 0 : 3]; gm.fillRect(Math.round(x - rad + azar() * rad * 2), Math.round(cy - rad * 0.6 + azar() * rad * 1.4), 1, 1); }   // textura de hojas
+      if (capa && azar() < 0.45) { const c = ['#e8503a', '#f0d040', '#f08ab8', '#9ab8ff'][Math.floor(azar() * 4)]; for (let k = 0; k < 3; k++) { gm.fillStyle = c; gm.fillRect(Math.round(x - rad * 0.6 + azar() * rad * 1.2), Math.round(cy - rad * 0.4 + azar() * rad * 0.8), 1, 1); } }
     }
-    gm.fillRect(0, 34 - alto + 8, 400, alto);
-    const d = gm.getImageData(0, 0, 400, 34).data; gm.fillStyle = luz;
-    if (capa) for (let x = 0; x < 400; x++) for (let y = 0; y < 34; y++) if (d[(y * 400 + x) * 4 + 3]) { gm.fillRect(x, y, 1, 1); break; }
-  }
-  for (let i = 0; i < 40; i++) { gm.fillStyle = ['#d8503a', '#f0d040', '#e88ab0'][i % 3]; gm.fillRect(Math.floor(azar() * 400), 16 + Math.floor(azar() * 14), 1, 1); }
-  preparar('.paisaje .pj-media', `<image href="${mata.toDataURL()}" x="0" y="230" width="2000" height="170" style="image-rendering:pixelated" preserveAspectRatio="none"/>`);
+  });
+  preparar('.paisaje .pj-media', `<image href="${mata.toDataURL()}" x="0" y="210" width="2000" height="200" style="image-rendering:pixelated" preserveAspectRatio="none"/>`);
   preparar('.paisaje .pj-arbol', '');
 
   // 5) Suelo de hierba en primer plano, con helechos y flores.
