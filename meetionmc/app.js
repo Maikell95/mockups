@@ -298,16 +298,16 @@ if (!reducido) {
     esc = Math.max(W / 2000, H / 400); ox = (W - 2000 * esc) / 2; oy = H - 400 * esc;   // igual que preserveAspectRatio="xMidYMax slice"
   };
   const nuevo = ahora => ({
-    nace: ahora, vida: 9000 + Math.random() * 7000, fase: Math.random() * 100,
+    nace: ahora, vida: 16000 + Math.random() * 10000, fase: Math.random() * 100,
     ax: 180 + Math.random() * 140, ay: 40 + Math.random() * 30, cx: 1280 + Math.random() * 400, cy: 120 + Math.random() * 50,
-    fx: 0.00021 + Math.random() * 0.0001, fy: 0.00037 + Math.random() * 0.00015, torre: TORRES[Math.random() < 0.5 ? 0 : 1],
+    fx: 0.00008 + Math.random() * 0.00004, fy: 0.00014 + Math.random() * 0.00006,   // vuelo calmado torre: TORRES[Math.random() < 0.5 ? 0 : 1],
   });
   // Posición en coordenadas de la fortaleza (2000×400): sale del spawner, vuela y al final baja tras una torre.
   const posicion = (b, ahora) => {
     const t = ahora - b.nace;
-    const vuelo = { x: b.cx + Math.sin(t * b.fx + b.fase) * b.ax + Math.sin(t * b.fx * 2.3 + b.fase) * 40,
-                    y: b.cy + Math.sin(t * b.fy + b.fase * 1.7) * b.ay + Math.cos(t * b.fx * 3.1) * 12 };
-    const salida = Math.min(1, t / 1600), entrada = Math.max(0, (t - (b.vida - 2200)) / 2200);
+    const vuelo = { x: b.cx + Math.sin(t * b.fx + b.fase) * b.ax + Math.sin(t * b.fx * 1.7 + b.fase) * 25,
+                    y: b.cy + Math.sin(t * b.fy + b.fase * 1.7) * b.ay + Math.cos(t * b.fx * 1.9) * 8 };
+    const salida = Math.min(1, t / 3500), entrada = Math.max(0, (t - (b.vida - 4000)) / 4000);
     const suave = k => k * k * (3 - 2 * k);
     let x = SPAWNER.x + (vuelo.x - SPAWNER.x) * suave(salida), y = SPAWNER.y + (vuelo.y - SPAWNER.y) * suave(salida);
     if (entrada > 0) { const k = suave(Math.min(1, entrada)); x += (b.torre.x - x) * k; y += (b.torre.y + 40 - y) * k; }
@@ -322,7 +322,7 @@ if (!reducido) {
     // Dos anillos de 4 varas que giran en sentidos contrarios; las de detrás se pintan antes que la cabeza.
     const varas = [];
     for (let i = 0; i < 8; i++) {
-      const arriba = i < 4, a = (arriba ? 1 : -1) * t / 420 + (i % 4) * Math.PI / 2 + (arriba ? 0 : Math.PI / 4);
+      const arriba = i < 4, a = (arriba ? 1 : -1) * t / 1100 + (i % 4) * Math.PI / 2 + (arriba ? 0 : Math.PI / 4);
       const radio = arriba ? 7 : 5;
       varas.push({ x: sx + Math.cos(a) * radio * p - p, y: sy + (arriba ? 0 : 6) * p, z: Math.sin(a) });
     }
@@ -333,10 +333,10 @@ if (!reducido) {
   };
   const dibujar = ahora => {
     ctx.clearRect(0, 0, W, H);
-    if (ahora > proximo && blazes.length < 3) { blazes.push(nuevo(ahora)); proximo = ahora + 3500 + Math.random() * 3000; }
+    if (ahora > proximo && blazes.length < 3) { blazes.push(nuevo(ahora)); proximo = ahora + 6000 + Math.random() * 5000; }
     const p = Math.max(1, Math.round(esc * 1.5));   // pequeños: están lejos
     blazes = blazes.filter(b => ahora - b.nace < b.vida);
-    for (const b of blazes) { const { x, y } = posicion(b, ahora); dibujarBlaze(x, y + Math.sin(ahora / 300 + b.fase) * 4, ahora, p); }
+    for (const b of blazes) { const { x, y } = posicion(b, ahora); dibujarBlaze(x, y + Math.sin(ahora / 900 + b.fase) * 3, ahora, p); }
   };
   ajustar(); addEventListener('resize', ajustar);
   if (reducido) { dibujar(performance.now()); return; }
