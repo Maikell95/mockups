@@ -20,12 +20,12 @@
 <link rel="icon" href="icono.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilos.css?v=14">
+<link rel="stylesheet" href="estilos.css?v=16">
 </head>
 <body>
 
 <div class="lava"></div>
-<div class="nether" aria-hidden="true"><svg class="monte lejos" data-k="0.03"></svg><svg class="monte media" data-k="0.07"></svg><svg class="monte cerca" data-k="0.12"></svg></div>
+<div class="nether" aria-hidden="true"><svg class="monte lejos" data-k="0.03"></svg><canvas class="lago"></canvas><div class="brillo-lava"></div><svg class="monte media" data-k="0.07"></svg><svg class="monte cerca" data-k="0.12"></svg></div>
 <canvas id="brasas"></canvas>
 <div class="calor" aria-hidden="true"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="filtro-calor" x="-10%" y="-10%" width="120%" height="120%">
@@ -117,6 +117,6 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="app.js?v=15"></script>
+<script src="app.js?v=17"></script>
 </body>
 </html>

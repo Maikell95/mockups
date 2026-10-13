@@ -164,7 +164,7 @@ if (!reducido) {
   const capas = [
     ['.nether .lejos', textura('roca-lejos', '#3f1817', ['#4a1d1c', '#361413', '#4f201f']), '#a8461e', cordillera(220, 170, 18, 150)],
     ['.nether .media', textura('roca-media', '#5a2421', ['#682c29', '#4c1d1b', '#70352f', '#421918']), '#e0702a', cordillera(300, 120, 14, 110)],
-    ['.nether .cerca', textura('roca-cerca', '#2b100f', ['#341413', '#220c0b', '#3c1816']), '#c4501c', cordillera(350, 70, 10, 60)],
+    ['.nether .cerca', textura('roca-cerca', '#2b100f', ['#341413', '#220c0b', '#3c1816']), '#c4501c', cordillera(250, 80, 10, 60)],
   ];
   for (const [sel, patron, borde, d] of capas) {
     const svg = $(sel); if (!svg) continue;
@@ -176,15 +176,63 @@ if (!reducido) {
   // La fortaleza va delante de la cordillera media, en ladrillo del Nether, con borde de lava.
   const media = $('.nether .media');
   if (media) media.insertAdjacentHTML('beforeend', `<path d="${fortaleza()}" fill="#ff9a2b" transform="translate(0 -2)" shape-rendering="crispEdges"/><path d="${fortaleza()}" fill="url(#ladrillo)" shape-rendering="crispEdges"/>`);
-  if (reducido) return;
+  // Al hacer scroll, toda la escena sube hasta enseñar el lago de lava y el suelo; cada capa además se desplaza un poco distinto.
+  const escena = $('.nether');
   let mx = 0, pendiente = false;
   const mover = () => {
     pendiente = false;
-    $$('.nether .monte').forEach(svg => { const k = +svg.dataset.k; svg.style.transform = `translate(${(-mx * k * 60).toFixed(1)}px, ${(-Math.min(scrollY * k * 0.5, 140)).toFixed(1)}px)`; });
+    const sube = Math.min(scrollY * 0.45, innerHeight * (innerWidth > 920 ? 0.28 : 0.2));
+    escena.style.transform = `translateY(${(-sube).toFixed(1)}px)`;
+    if (reducido) return;
+    $$('.nether .monte').forEach(svg => { const k = +svg.dataset.k; svg.style.transform = `translate(${(-mx * k * 60).toFixed(1)}px, ${(sube * k * 0.8).toFixed(1)}px)`; });
   };
   const pedir = () => { if (!pendiente) { pendiente = true; requestAnimationFrame(mover); } };
   addEventListener('scroll', pedir, { passive: true });
-  addEventListener('pointermove', e => { mx = e.clientX / innerWidth - 0.5; pedir(); }, { passive: true });
+  addEventListener('resize', pedir);
+  if (!reducido) addEventListener('pointermove', e => { mx = e.clientX / innerWidth - 0.5; pedir(); }, { passive: true });
+  mover();
+
+  // Lago de lava: se pinta a baja resolución (1 píxel = 5 px) para que parezca de Minecraft.
+  const lago = $('.nether .lago'); if (!lago) return;
+  const lctx = lago.getContext('2d');
+  const PALETA = [[90, 18, 4], [140, 34, 6], [190, 62, 10], [226, 88, 15], [247, 135, 28], [255, 178, 58], [255, 224, 122]];
+  let W = 0, H = 0, img, burbujas = [];
+  const ajustarLago = () => { W = Math.ceil(lago.clientWidth / 5); H = Math.ceil(lago.clientHeight / 5); lago.width = W; lago.height = H; img = lctx.createImageData(W, H); };
+  const pintarLago = t => {
+    const d = img.data;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      // Mezcla de ondas que se mueven: zonas claras y oscuras que fluyen como la lava.
+      let v = Math.sin(x * 0.13 + t * 0.9) + Math.sin(y * 0.45 - t * 1.3 + x * 0.05) + Math.sin((x + y * 2) * 0.07 + t * 0.6) + Math.sin(x * 0.031 - t * 0.4) * 1.5;
+      v = (v + 4.5) / 9;
+      if (y < 2) v = Math.min(1, v + 0.35 - y * 0.1);   // la superficie brilla más
+      const c = PALETA[Math.max(0, Math.min(PALETA.length - 1, Math.floor(v * PALETA.length)))];
+      const i = (y * W + x) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255;
+    }
+    lctx.putImageData(img, 0, 0);
+    // Burbujas que crecen, explotan y salpican.
+    if (Math.random() < 0.12 && burbujas.length < 10) burbujas.push({ x: Math.random() * W, y: 2 + Math.random() * (H - 4), r: 0, max: 1 + Math.random() * 2.2, s: 0 });
+    burbujas = burbujas.filter(b => {
+      if (b.s === 0) {
+        b.r += 0.08; lctx.fillStyle = '#ffe07a'; lctx.fillRect(Math.round(b.x - b.r), Math.round(b.y - b.r), Math.ceil(b.r * 2), Math.ceil(b.r * 2));
+        lctx.fillStyle = '#ff9a2b'; lctx.fillRect(Math.round(b.x - b.r) + 1, Math.round(b.y - b.r) + 1, Math.max(0, Math.ceil(b.r * 2) - 2), Math.max(0, Math.ceil(b.r * 2) - 2));
+        if (b.r >= b.max) b.s = 1;
+        return true;
+      }
+      b.s++; lctx.fillStyle = '#ffd23a';
+      for (const [dx, dy] of [[-1, -1], [1, -1], [0, -2], [-2, 0], [2, 0]]) lctx.fillRect(Math.round(b.x + dx * b.s * 0.7), Math.round(b.y + dy * b.s * 0.7), 1, 1);
+      return b.s < 5;
+    });
+  };
+  ajustarLago(); addEventListener('resize', ajustarLago);
+  pintarLago(0);
+  if (reducido) return;
+  // Solo se anima mientras el lago está a la vista, a unos 20 fotogramas por segundo.
+  let ultimo = 0;
+  const bucle = ms => {
+    if (ms - ultimo > 50 && lago.getBoundingClientRect().top < innerHeight) { ultimo = ms; pintarLago(ms / 1000); }
+    requestAnimationFrame(bucle);
+  };
+  requestAnimationFrame(bucle);
 })();
 
 /* ======================= chispas al hacer clic ======================= */

@@ -390,16 +390,19 @@ html { --sb-pos: 0px; }
 }
 
 /* ---------- ambientación: Nether al fondo, chispas y calor ---------- */
-.nether { position: fixed; left: 0; right: 0; bottom: 0; height: 58vh; z-index: 0; pointer-events: none; overflow: hidden; }
-.nether .monte { position: absolute; left: -4%; width: 108%; bottom: 0; will-change: transform; }
-.nether .lejos { height: 100%; }
-.nether .media { height: 74%; }
-.nether .cerca { height: 38%; }
+/* La escena es más alta que la pantalla: el lago de lava y el suelo quedan por debajo y suben al hacer scroll. */
+.nether { position: fixed; left: 0; right: 0; bottom: -28vh; height: 86vh; z-index: 0; pointer-events: none; overflow: hidden; will-change: transform; }
+.nether .monte { position: absolute; left: -4%; width: 108%; will-change: transform; }
+.nether .lejos { bottom: 38%; height: 60%; }
+.nether .media { bottom: 34%; height: 48%; }
+.nether .cerca { bottom: 0; height: 30%; }
+.nether .lago { position: absolute; left: 0; width: 100%; bottom: 12%; height: 24%; image-rendering: pixelated; }
+.nether .brillo-lava { position: absolute; left: 0; right: 0; bottom: 33%; height: 22%; background: linear-gradient(0deg, rgba(255, 130, 30, 0.28), transparent); animation: respirar 3.5s ease-in-out infinite; }
 .calor { position: fixed; left: 0; top: 0; width: 72px; height: 72px; margin: -36px 0 0 -36px; border-radius: 50%; z-index: 79; pointer-events: none;
   -webkit-mask-image: radial-gradient(circle, #000 50%, transparent 84%); mask-image: radial-gradient(circle, #000 50%, transparent 84%);
   opacity: 0; transition: opacity 0.4s; will-change: transform; }
 .calor.on { opacity: 1; backdrop-filter: url(#filtro-calor); }  /* el filtro solo se calcula mientras se ve */
 @media (hover: none), (prefers-reduced-motion: reduce) { .calor { display: none; } }
-@media (max-width: 920px) { .nether { height: 30vh; } }
+@media (max-width: 920px) { .nether { height: 60vh; bottom: -20vh; } }
 .hero h1, .hero p.lead { position: relative; }
 .hero p.lead { text-shadow: 0 2px 0 #000, 0 0 12px rgba(0, 0, 0, 0.9); }
