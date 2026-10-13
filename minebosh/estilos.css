@@ -444,3 +444,16 @@ html { scrollbar-color: var(--fire-2) #050e07; scrollbar-width: auto; }
   .meta-bar.grande { height: 22px; }
   .meta-mes p.muted { font-size: 0.82rem; }
 }
+/* La corona va centrada sobre el jugador y corta el borde superior de la caja en ese punto. */
+.donador-mes { --hueco: 63px; border-top-color: transparent; background-clip: padding-box;
+  box-shadow: inset 2px 0 0 var(--gold), inset -2px 0 0 var(--gold), inset 0 -2px 0 var(--gold), 6px 6px 0 #000; }
+.donador-mes::before { content: ""; position: absolute; left: -3px; right: -3px; top: -3px; height: 5px; pointer-events: none;
+  background:
+    linear-gradient(90deg, #000 0 calc(var(--hueco) - 28px), transparent 0 calc(var(--hueco) + 28px), #000 0) 0 0 / 100% 3px no-repeat,
+    linear-gradient(90deg, var(--gold) 0 calc(var(--hueco) - 28px), transparent 0 calc(var(--hueco) + 28px), var(--gold) 0) 0 3px / 100% 2px no-repeat; }
+.corona-flota { left: calc(var(--hueco) - 23px); top: -24px; }
+@media (max-width: 560px) {
+  .donador-mes { --hueco: 43px; }
+  .corona-flota { left: calc(var(--hueco) - 19px); top: -20px; }
+  .corona-flota svg { width: 32px; height: 32px; }
+}
