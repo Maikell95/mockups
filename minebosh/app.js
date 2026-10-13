@@ -447,12 +447,12 @@ function pintar(raiz = document) {
       v = (v + 3.8) / 7.6;
       if (y < 2) v = Math.min(1, v + 0.25 - y * 0.1);
       const c = AGUA[Math.max(0, Math.min(AGUA.length - 1, Math.floor(v * AGUA.length)))];
-      const i = (y * W + x) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255;
+      // brillos en las crestas de las ondas: se mueven con el agua porque salen de la misma ola
+      const cresta = v > 0.8 && Math.sin(x * 1.7 + y * 3.1) > 0.55;
+      const col = cresta ? [111, 151, 172] : c;
+      const i = (y * W + x) * 4; d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
     }
     rctx.putImageData(img, 0, 0);
-    // espuma que corre con el agua
-    rctx.fillStyle = '#6f97ac';
-    for (let k = 0; k < W / 12; k++) { const x = ((k * 37 + t * 3) % (W + 10)) - 5, y = (k * 13) % H; rctx.fillRect(Math.round(x), y, 2, 1); }
   };
   ajustarRio(); addEventListener('resize', ajustarRio);
   pintarRio(0);
