@@ -74,13 +74,31 @@ function pintar(raiz = document) {
 /* ======================= selva: hojas que caen, luciérnagas y loros ======================= */
 (() => {
   const lienzo = $('#selva'), ctx = lienzo.getContext('2d');
-  const HOJA = ['..gg..', '.gGgg.', 'gGggGg', '.ggGg.', '..gg..', '...b..'];
+  // Hojas de selva: 4 tipos y 3 tonos de verde. Se pintan una vez en un lienzo pequeño y luego se giran al caer.
+  const TIPOS_HOJA = {"ovalada": ["........aab.", "......aabbbb", ".....abbbcbb", "....abbbcbbb", "...abbbcbbb.", "..abbbcbbb..", "..abbcbbb...", ".abbcbbb....", ".abcbbb.....", ".acbb.......", "tt..........", "t..........."], "larga": ["..............ab", ".............abb", "...........aabbc", ".........aabbbc.", ".......aabbbcc..", ".....aabbbcc....", "...aabbbcc......", ".aabbbcc........", "tbbcc...........", "t..............."], "ancha": ["......a......", ".....abb.....", "....abbcb....", "...abbbcbb...", "..abbbbcbbb..", ".abbcbbcbbcb.", "abbbbcbcbcbbc", "abbbbbcccbbbc", "abbbbbbcbbbbc", ".abbbbbcbbbc.", "..abbbbcbbc..", "...aabbcbc...", "......t......", "......t......"], "redonda": ["..aab..", ".aabbb.", "abbcbbb", "abbcbbc", ".bbcbc.", "..bcc..", "...t...", "...t..."]};
+  const PALETAS_HOJA = [{"a": "#9cf06e", "b": "#45c94a", "c": "#1f7a2c", "t": "#6b4a2b"}, {"a": "#6fd65a", "b": "#2f9e3c", "c": "#16592a", "t": "#5a3d22"}, {"a": "#d8f06a", "b": "#9ccf3a", "c": "#5b8a1f", "t": "#6b4a2b"}];
+  const PESO_TIPO = [['ovalada', 0.35], ['larga', 0.25], ['ancha', 0.2], ['redonda', 0.2]];
+  const cacheHoja = {};
+  const lienzoHoja = (tipo, p) => {
+    const k = tipo + p; if (cacheHoja[k]) return cacheHoja[k];
+    const filas = TIPOS_HOJA[tipo], pal = PALETAS_HOJA[p], c = document.createElement('canvas');
+    c.width = Math.max(...filas.map(f => f.length)); c.height = filas.length;
+    const g = c.getContext('2d');
+    filas.forEach((f, j) => [...f].forEach((ch, i) => { if (pal[ch]) { g.fillStyle = pal[ch]; g.fillRect(i, j, 1, 1); } }));
+    return (cacheHoja[k] = c);
+  };
+  const tipoAlAzar = () => { let r = Math.random(); for (const [t, w] of PESO_TIPO) { if ((r -= w) < 0) return t; } return 'ovalada'; };
   // Guacamayo de perfil (32x24, como los del logo): el cuerpo es fijo y las alas cambian por fotograma.
   const LORO = {"arriba": ["..............KK", ".............KuuK", "............KuuuUK", "...........KuuuuuK", "...........KyyuuuUK", "............KyyyyuuK", ".............KyyyyyuK...KKKK", "..............KrryyyyK.KrrrrK", "...............KrrryyKKrrwwwrK", "................KKrrrKKrwwkwsSK", "................KKKKKKrrrwwssSSK", "..............KKrrrrrrrrrrrKsSK", "KKKKKKK.....KKrrrrorrrrrrrRKSK", "KuuuuuuKKKKKrrrrrrrrrrrrRRK", ".KUuuuuuuuurrrrrrrrrrrrRRK", "..KKUUUuurrRRrrrrrrrRRRK", "....KKKKKUURRRRRRRRRKKK", ".........KKKKKKKKKKK.K", "...................KK", "", "", "", "", ""], "medio": ["", "", "", "", "", "", "........................KKKK", ".......................KrrrrK", "......................KrrwwwrK", "..........KKKKKKKK....KrwwkwsSK", "........KKuuuuyyyyKKKKrrrwwssSSK", ".......KUUuuuuyyyyyrrKrrrrrKsSK", "KKKKKKK.KKUUuuuyyyrrrKrrrrRKSK", "KuuuuuuKKKKKKKKKKKKKKrrrRRK", ".KUuuuuuuuurrrrrrrrrrrrRRK", "..KKUUUuurrRRrrrrrrrRRRK", "....KKKKKUURRRRRRRRRKKK", ".........KKKKKKKKKKK.K", "...................KK", "", "", "", "", ""], "abajo": ["", "", "", "", "", "", "........................KKKK", ".......................KrrrrK", "......................KrrwwwrK", "......................KrwwkwsSK", "................KKKKKKrrrwwssSSK", "..............KKrrrrrrrrrrrKsSK", "KKKKKKK.....KKrrrrorrrrrrrRKSK", "KuuuuuuKKKKKrrKyyyrrKrrrRRK", ".KUuuuuuuuurrrKyyyyrKrrRRK", "..KKUUUuurrRRKuyyyyKRRRK", "....KKKKKUURKuuuyyKRKKK", ".........KKKuuuuuKKK.K", "..........KUuuuuK..KK", "..........KUUuuK", "...........KKKK", "", "", ""]};
   const ALETEO = ['arriba', 'medio', 'abajo', 'medio'];
   const C = {"g": "#3fbf4a", "G": "#16a334", "b": "#7a5230", "r": "#e8332f", "R": "#a51d1a", "o": "#ff7a4a", "y": "#ffcf3a", "Y": "#e09a12", "u": "#3a9cf0", "U": "#1d4fa8", "w": "#ffffff", "k": "#111111", "s": "#e4e0d4", "S": "#7a7466", "K": "#000000"};
   let hojas = [], luces = [], loros = [];
-  const hoja = inicio => ({ x: Math.random() * innerWidth, y: inicio ? Math.random() * innerHeight : -20, e: 2 + Math.floor(Math.random() * 2), v: 0.25 + Math.random() * 0.5, o: Math.random() * 6.3, giro: Math.random() < 0.5 });
+  const hoja = inicio => {
+    const e = [2, 2, 3, 3, 3, 4][Math.floor(Math.random() * 6)];
+    return { x: Math.random() * innerWidth, y: inicio ? Math.random() * innerHeight : -40, e, tipo: tipoAlAzar(), p: Math.floor(Math.random() * PALETAS_HOJA.length),
+      v: (0.25 + Math.random() * 0.4) * (0.7 + e * 0.15), rot: Math.random() * 6.3, vr: (Math.random() - 0.5) * 0.02, vuelta: 600 + Math.random() * 900, o: Math.random() * 6.3,
+      alfa: 0.5 + e * 0.1 };
+  };
   const luz = () => ({ x: Math.random() * innerWidth, y: innerHeight * (0.35 + Math.random() * 0.65), t: Math.random() < 0.3 ? 3 : 2, o: Math.random() * 6.3 });
   // Cada loro vuela con su altura, velocidad y tamaño (los pequeños parecen más lejos); a veces en bandada.
   const loro = (base) => {
@@ -92,7 +110,8 @@ function pintar(raiz = document) {
   const ajustar = () => {
     lienzo.width = innerWidth * devicePixelRatio; lienzo.height = innerHeight * devicePixelRatio;
     ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-    hojas = Array.from({ length: Math.round(innerWidth * innerHeight / 45000) }, () => hoja(true));
+    ctx.imageSmoothingEnabled = false;
+    hojas = Array.from({ length: Math.round(innerWidth * innerHeight / 38000) }, () => hoja(true));
     luces = Array.from({ length: Math.round(innerWidth * innerHeight / 30000) }, luz);
   };
   // Al dar la vuelta se usa el ancho del sprite completo (las filas no miden todas lo mismo).
@@ -104,11 +123,15 @@ function pintar(raiz = document) {
   const dibujar = ms => {
     ctx.clearRect(0, 0, innerWidth, innerHeight);
     for (const l of luces) { ctx.globalAlpha = Math.max(0, Math.sin(ms / 500 + l.o)) * 0.8; ctx.fillStyle = '#e8ff8a'; ctx.fillRect(Math.round(l.x + Math.sin(ms / 1500 + l.o) * 12), Math.round(l.y + Math.cos(ms / 1700 + l.o) * 8), l.t, l.t); }
-    ctx.globalAlpha = 0.55;
     for (const h of hojas) {
-      h.y += h.v; h.x += Math.sin(ms / 900 + h.o) * 0.7;
-      dibujarSprite(HOJA, h.x, h.y, h.e, h.giro && Math.sin(ms / 600 + h.o) > 0);
-      if (h.y > innerHeight + 20) Object.assign(h, hoja(false));
+      h.y += h.v; h.x += Math.sin(ms / 900 + h.o) * 0.6; h.rot += h.vr + Math.sin(ms / 1100 + h.o) * 0.004;
+      // El ancho cambia con el tiempo para que parezca que la hoja da vueltas al caer.
+      const giro = Math.cos(ms / h.vuelta + h.o);
+      const img = lienzoHoja(h.tipo, h.p);
+      ctx.save(); ctx.globalAlpha = h.alfa; ctx.translate(Math.round(h.x), Math.round(h.y)); ctx.rotate(h.rot);
+      ctx.scale(h.e * (0.25 + 0.75 * Math.abs(giro)) * Math.sign(giro || 1), h.e);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2); ctx.restore();
+      if (h.y > innerHeight + 40) Object.assign(h, hoja(false));
     }
     ctx.globalAlpha = 1;
     if (ms > proximo && loros.length < 3) {
