@@ -275,41 +275,27 @@ function pintar(raiz = document) {
     ['#0c200b', '#153a11', '#20551a', '#2f7124', '#468f34', '#69ab4b'],   // fila de delante
   ];
   const PAL_TRONCO = [['#0f0a05', '#1c140a', '#2a1f10'], ['#1a1108', '#35261a', '#523b26'], ['#1e1409', '#43301d', '#6b4f33']];
+  // Árboles como siluetas planas: un solo color por fila (más oscuro cuanto más lejos) y solo el borde
+  // de arriba iluminado por la luz que llega desde la derecha.
+  const SILUETA = [{ cuerpo: '#10260f', borde: '#24451f' }, { cuerpo: '#163418', borde: '#33602b' }, { cuerpo: '#1b3f1b', borde: '#4a7d3a' }];
   const lienzoArbol = (w, h, fila, conTronco = true, nGrupos = 0) => {
     const c = document.createElement('canvas'); c.width = w; c.height = h;
-    const g = c.getContext('2d'), hoja = PAL_HOJAS[fila], tr = PAL_TRONCO[fila];
-    const disco = (cx, cy, rad, col) => { g.fillStyle = col; for (let y = -rad; y <= rad; y++) { const m = Math.floor(Math.sqrt(rad * rad - y * y) + 0.35); g.fillRect(Math.round(cx - m), Math.round(cy + y), m * 2 + 1, 1); } };
-    const copaY = conTronco ? h * 0.38 : h * 0.5, rx = w * 0.46, ry = conTronco ? h * 0.33 : h * 0.46;
+    const g = c.getContext('2d'), col = SILUETA[fila];
+    const disco = (cx, cy, rad) => { for (let y = -rad; y <= rad; y++) { const m = Math.floor(Math.sqrt(rad * rad - y * y) + 0.35); g.fillRect(Math.round(cx - m), Math.round(cy + y), m * 2 + 1, 1); } };
+    const copaY = conTronco ? h * 0.36 : h * 0.5, rx = w * 0.44, ry = conTronco ? h * 0.3 : h * 0.44;
+    g.fillStyle = col.cuerpo;
     if (conTronco) {
-      const tx = w / 2, base = h - 1, tw = Math.max(3, Math.round(w * 0.13));
-      for (let y = Math.round(copaY); y <= base; y++) {
-        const k = (y - copaY) / (base - copaY), raiz = y > base - 4 ? (4 - (base - y)) * 1.6 : 0;
-        const ancho = Math.round(tw * (0.75 + 0.45 * k) + raiz), x0 = Math.round(tx - ancho / 2);
-        for (let x = 0; x < ancho; x++) { const t = x / ancho; g.fillStyle = azar() < 0.14 ? tr[0] : t < 0.3 ? tr[0] : t < 0.72 ? tr[1] : tr[2]; g.fillRect(x0 + x, y, 1, 1); }
-      }
-      // ramas que suben en diagonal hacia la copa
-      for (const d of [-1, 1, -0.4]) {
-        let x = tx, y = copaY + (h - copaY) * 0.3;
-        for (let i = 0; i < w * 0.22; i++) { x += d; y -= 0.8; g.fillStyle = tr[1]; g.fillRect(Math.round(x), Math.round(y), 2, 2); g.fillStyle = tr[2]; g.fillRect(Math.round(x) + 1, Math.round(y), 1, 1); }
-      }
+      const tw = Math.max(2, Math.round(w * 0.1)), tx = Math.round(w / 2 - tw / 2);
+      g.fillRect(tx, Math.round(copaY), tw, h - Math.round(copaY));
+      g.fillRect(tx - 2, h - 3, tw + 4, 3);   // base algo más ancha
     }
-    // Copa de pocos bloques de hojas como en Minecraft: cada bloque es un cuadrado con textura de hojas,
-    // cara superior y derecha al sol, cara inferior e izquierda en sombra. Primero los de abajo.
-    const cx = w / 2, n = nGrupos || 6, bloques = [], lado = Math.max(6, Math.round(Math.min(w, 60) * 0.34));
-    for (let i = 0; i < n; i++) {
-      const a = azar() * Math.PI * 2, d = Math.sqrt(azar()) * 0.7;
-      bloques.push({ x: Math.round((cx + Math.cos(a) * d * rx) / 2) * 2, y: Math.round((copaY + Math.sin(a) * d * ry) / 2) * 2 });
-    }
-    bloques.push({ x: Math.round(cx), y: Math.round(copaY - ry * 0.45) });   // bloque de arriba, centrado
-    bloques.sort((p, q) => q.y - p.y);
-    for (const p of bloques) {
-      const x0 = Math.round(p.x - lado / 2), y0 = Math.round(p.y - lado / 2);
-      const luz = ((p.x - cx) / rx) * 0.5 - ((p.y - copaY) / ry) * 0.8, t = Math.max(0, Math.min(2, Math.round(1 + luz)));
-      g.fillStyle = hoja[t + 1]; g.fillRect(x0, y0, lado, lado);
-      for (let k = 0; k < lado * lado * 0.35; k++) { g.fillStyle = hoja[t + (azar() < 0.5 ? 0 : 2)]; g.fillRect(x0 + Math.floor(azar() * lado), y0 + Math.floor(azar() * lado), 1, 1); }   // textura de hojas
-      g.fillStyle = hoja[t + 2]; g.fillRect(x0, y0, lado, 1); g.fillRect(x0 + lado - 1, y0, 1, lado);    // arriba y derecha al sol
-      g.fillStyle = hoja[t]; g.fillRect(x0, y0 + lado - 1, lado, 1); g.fillRect(x0, y0, 1, lado);        // abajo e izquierda en sombra
-    }
+    const n = nGrupos || 7, lado = Math.min(w, 60);
+    for (let i = 0; i < n; i++) { const a = azar() * Math.PI * 2, d = Math.sqrt(azar()) * 0.6; disco(w / 2 + Math.cos(a) * d * rx, copaY + Math.sin(a) * d * ry, Math.round(lado * (0.16 + azar() * 0.08))); }
+    disco(w / 2, copaY, Math.round(Math.min(rx, ry) * 0.8));
+    // borde iluminado: cada columna pinta su píxel más alto (y uno más hacia la derecha de la copa)
+    const d = g.getImageData(0, 0, w, h).data;
+    g.fillStyle = col.borde;
+    for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) if (d[(y * w + x) * 4 + 3]) { g.fillRect(x, y, 1, x > w * 0.45 ? 2 : 1); break; }
     return { url: c.toDataURL(), w, h, cima: Math.round(copaY - ry) };
   };
   const imagen = (a, x, y, esc) => `<image href="${a.url}" x="${Math.round(x)}" y="${Math.round(y)}" width="${a.w * esc}" height="${a.h * esc}" style="image-rendering:pixelated"/>`;
@@ -361,7 +347,7 @@ function pintar(raiz = document) {
   arbol += r(AX - 96, 170, 2, 190, '#6e5030') + r(AX - 79, 170, 2, 190, '#6e5030');
   // copa enorme por bloques
   // copa enorme con volumen: racimo de grupos de hojas iluminados desde arriba a la derecha
-  const copaGigante = lienzoArbol(240, 84, 2, false, 44);
+  const copaGigante = lienzoArbol(240, 84, 2, false, 30);
   arbol += imagen(copaGigante, AX - 300, -140, 2.6);
   for (let i = 0; i < 26; i++) { const x = AX - 190 + Math.floor(azar() * 500), l = 20 + Math.floor(azar() * 110); arbol += r(x, 70, 3, l, azar() < 0.5 ? '#2f6a22' : '#3b7f2a'); }   // lianas
   preparar('.paisaje .pj-arbol', `<defs>${textura('pj-corteza', '#5a4524', ['#6e5530', '#4a3820', '#7a6038'], 50)}${hojasJungla('pj-hojas2', '#122a0f', ['#21501b', '#2a6022', '#1c4517', '#306a27', '#3f7a33'])}
