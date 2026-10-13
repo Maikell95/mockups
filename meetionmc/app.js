@@ -129,12 +129,14 @@ if (!reducido) {
 (() => {
   let semilla = 7;
   const azar = () => (semilla = (semilla * 16807) % 2147483647) / 2147483647;
-  // Montañas de bloques: el perfil sube y baja a escalones, como el terreno de Minecraft.
+  // Montañas de bloques: el perfil cambia en cada bloque (sin tramos rectos largos), como el terreno de Minecraft.
   const cordillera = (base, amp, bloque, suave) => {
-    let d = 'M0 400 V' + base, y = base;
+    let d = 'M0 400 V' + base, previo = base;
     for (let x = 0; x <= 2000; x += bloque) {
-      const objetivo = base - amp * (0.5 + 0.5 * Math.sin(x / suave + azar() * 0.8)) - azar() * amp * 0.35;
-      y = Math.max(20, Math.min(390, Math.round(objetivo / 10) * 10));
+      const onda = base - amp * (0.5 + 0.5 * Math.sin(x / suave) * Math.cos(x / (suave * 2.7) + 1));
+      let y = Math.round((onda + (azar() - 0.5) * amp * 0.45) / 8) * 8;
+      if (y === previo) y += azar() < 0.5 ? -8 : 8;
+      y = Math.max(16, Math.min(392, y)); previo = y;
       d += ` V${y} H${x + bloque}`;
     }
     return d + ' V400 Z';
@@ -149,21 +151,31 @@ if (!reducido) {
     }
     return d;
   };
-  // [capa, relleno, borde iluminado por la lava, perfil]
+  // Colores del Nether de Minecraft: netherrack para las montañas (más oscuro cuanto más cerca, a contraluz)
+  // y ladrillo del Nether para la fortaleza. Cada capa lleva su textura de píxeles.
+  const textura = (id, base, motas) => {
+    let r = `<rect width="16" height="16" fill="${base}"/>`;
+    for (let i = 0; i < 26; i++) r += `<rect x="${Math.floor(azar() * 16)}" y="${Math.floor(azar() * 16)}" width="${azar() < 0.3 ? 2 : 1}" height="1" fill="${motas[Math.floor(azar() * motas.length)]}"/>`;
+    return `<pattern id="${id}" width="16" height="16" patternUnits="userSpaceOnUse">${r}</pattern>`;
+  };
+  const ladrillo = `<pattern id="ladrillo" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#2c161a"/>
+    <path d="M0 0H16M0 8H16" stroke="#160a0d" stroke-width="2"/><path d="M8 0V8M0 8V16" stroke="#160a0d" stroke-width="2"/>
+    <path d="M1 2H6M9 10H14" stroke="#43222a" stroke-width="1"/></pattern>`;
   const capas = [
-    ['.nether .lejos', '#2e0906', '#6e1708', cordillera(250, 170, 40, 160)],
-    ['.nether .media', '#1a0504', '#8a2208', cordillera(330, 110, 30, 120)],
-    ['.nether .cerca', '#050101', '#7a2408', cordillera(360, 60, 20, 70)],
+    ['.nether .lejos', textura('roca-lejos', '#3f1817', ['#4a1d1c', '#361413', '#4f201f']), '#a8461e', cordillera(220, 170, 18, 150)],
+    ['.nether .media', textura('roca-media', '#5a2421', ['#682c29', '#4c1d1b', '#70352f', '#421918']), '#e0702a', cordillera(300, 120, 14, 110)],
+    ['.nether .cerca', textura('roca-cerca', '#2b100f', ['#341413', '#220c0b', '#3c1816']), '#c4501c', cordillera(350, 70, 10, 60)],
   ];
-  for (const [sel, color, borde, d] of capas) {
+  for (const [sel, patron, borde, d] of capas) {
     const svg = $(sel); if (!svg) continue;
+    const id = patron.match(/id="([^"]+)"/)[1];
     svg.setAttribute('viewBox', '0 0 2000 400'); svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
-    // La misma silueta 3 px más arriba en color brasa hace de borde iluminado.
-    svg.innerHTML = `<path d="${d}" fill="${borde}" transform="translate(0 -3)" shape-rendering="crispEdges"/><path d="${d}" fill="${color}" shape-rendering="crispEdges"/>`;
+    // La misma silueta 3 px más arriba en color de lava hace de borde iluminado.
+    svg.innerHTML = `<defs>${patron}${sel.endsWith('media') ? ladrillo : ''}</defs><path d="${d}" fill="${borde}" transform="translate(0 -3)" shape-rendering="crispEdges"/><path d="${d}" fill="url(#${id})" shape-rendering="crispEdges"/>`;
   }
-  // La fortaleza va delante de la cordillera media, más oscura y con su propio borde de brasa.
+  // La fortaleza va delante de la cordillera media, en ladrillo del Nether, con borde de lava.
   const media = $('.nether .media');
-  if (media) media.insertAdjacentHTML('beforeend', `<path d="${fortaleza()}" fill="#c4410c" transform="translate(0 -3)" shape-rendering="crispEdges"/><path d="${fortaleza()}" fill="#0d0202" shape-rendering="crispEdges"/>`);
+  if (media) media.insertAdjacentHTML('beforeend', `<path d="${fortaleza()}" fill="#ff9a2b" transform="translate(0 -2)" shape-rendering="crispEdges"/><path d="${fortaleza()}" fill="url(#ladrillo)" shape-rendering="crispEdges"/>`);
   if (reducido) return;
   let mx = 0, pendiente = false;
   const mover = () => {
@@ -176,30 +188,41 @@ if (!reducido) {
 })();
 
 /* ======================= chispas al hacer clic ======================= */
+// Cada estallido usa un lienzo pequeño (200×200) solo alrededor del clic y se elimina al acabar:
+// no se repinta la pantalla entera. La física va por tiempo, así se ve igual a 60 o a 144 Hz.
 (() => {
   if (reducido) return;
-  const lienzo = $('#chispas'), ctx = lienzo.getContext('2d');
   const COLORES = ['#ffcf4a', '#ffb347', '#fb7406', '#ff5a1f', '#c80300'];
-  let chispas = [], activo = false;
-  const ajustar = () => { lienzo.width = innerWidth * devicePixelRatio; lienzo.height = innerHeight * devicePixelRatio; ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); };
-  const dibujar = () => {
-    ctx.clearRect(0, 0, innerWidth, innerHeight);
-    chispas = chispas.filter(c => (c.vida -= 1) > 0);
-    for (const c of chispas) {
-      c.x += c.vx; c.y += c.vy; c.vy += 0.18; c.vx *= 0.97;
-      ctx.globalAlpha = Math.min(1, c.vida / 20); ctx.fillStyle = c.c; ctx.fillRect(Math.round(c.x), Math.round(c.y), c.t, c.t);
-    }
-    if (chispas.length) requestAnimationFrame(dibujar); else { activo = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
-  };
-  ajustar(); addEventListener('resize', ajustar);
+  const TAM = 200, MAX = 4;
+  let activos = 0;
   document.addEventListener('pointerdown', e => {
-    if (!e.target.closest('button, a, .producto, .card.hover, [data-copiar]')) return;
-    for (let i = 0; i < 22; i++) {
-      const ang = Math.random() * Math.PI * 2, vel = 1.5 + Math.random() * 4.5;
-      chispas.push({ x: e.clientX, y: e.clientY, vx: Math.cos(ang) * vel, vy: Math.sin(ang) * vel - 2.5, t: Math.random() < 0.3 ? 4 : 3, vida: 28 + Math.random() * 26, c: COLORES[Math.floor(Math.random() * COLORES.length)] });
-    }
-    if (!activo) { activo = true; requestAnimationFrame(dibujar); }
-  });
+    if (activos >= MAX || !e.target.closest('button, a, .producto, .card.hover, [data-copiar]')) return;
+    activos++;
+    const dpr = Math.min(devicePixelRatio, 2);
+    const c = document.createElement('canvas');
+    c.width = c.height = TAM * dpr;
+    c.style.cssText = `position:fixed;left:${e.clientX - TAM / 2}px;top:${e.clientY - TAM / 2}px;width:${TAM}px;height:${TAM}px;pointer-events:none;z-index:80`;
+    document.body.appendChild(c);
+    const ctx = c.getContext('2d'); ctx.scale(dpr, dpr);
+    const parts = Array.from({ length: 18 }, () => {
+      const ang = Math.random() * Math.PI * 2, vel = 90 + Math.random() * 200;
+      return { x: TAM / 2, y: TAM / 2, vx: Math.cos(ang) * vel, vy: Math.sin(ang) * vel - 120, t: Math.random() < 0.3 ? 4 : 3, vida: 0.45 + Math.random() * 0.4, c: COLORES[(Math.random() * COLORES.length) | 0] };
+    });
+    let antes = performance.now();
+    const paso = ahora => {
+      const dt = Math.min(0.05, (ahora - antes) / 1000); antes = ahora;
+      ctx.clearRect(0, 0, TAM, TAM);
+      let vivas = 0;
+      for (const p of parts) {
+        if ((p.vida -= dt) <= 0) continue;
+        vivas++;
+        p.vy += 520 * dt; p.vx *= 1 - 2 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+        ctx.globalAlpha = Math.min(1, p.vida * 3); ctx.fillStyle = p.c; ctx.fillRect(p.x | 0, p.y | 0, p.t, p.t);
+      }
+      if (vivas) requestAnimationFrame(paso); else { c.remove(); activos--; }
+    };
+    requestAnimationFrame(paso);
+  }, { passive: true });
 })();
 
 /* ======================= calor alrededor del ratón ======================= */
