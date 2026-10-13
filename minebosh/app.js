@@ -329,6 +329,8 @@ function pintar(raiz = document) {
   templo += r(TX + 100, 140, 40, 25, '#141810') + r(TX + 104, 144, 32, 2, '#2a3022');            // entrada oscura
   for (let y = 165; y < 310; y += 9) templo += r(TX + 96, y, 48, 5, '#7d8373') + r(TX + 96, y + 5, 48, 2, '#4c5248');   // escalinata
   for (let i = 0; i < 22; i++) { const x = TX + 6 + Math.floor(azar() * 228), y = [250, 205, 165, 130][Math.floor(azar() * 4)], l = 8 + Math.floor(azar() * 26); templo += r(x, y + 3, 2, l, azar() < 0.5 ? '#3f6626' : '#4f7a2c'); }
+  // montículo de hierba y tierra bajo el templo: lo asienta en el suelo
+  templo += r(TX - 40, 306, 320, 100, '#3a2a1c') + r(TX - 40, 306, 320, 8, '#3c6a2e') + r(TX - 40, 306, 320, 2, '#5e9648') + r(TX - 56, 318, 18, 90, '#3a2a1c') + r(TX - 56, 318, 18, 6, '#3c6a2e') + r(TX + 278, 318, 18, 90, '#3a2a1c') + r(TX + 278, 318, 18, 6, '#3c6a2e');
   preparar('.paisaje .pj-templo', `<defs>${piedra}</defs><g shape-rendering="crispEdges">${templo}</g>`);
 
   // Árboles en pixel art con volumen (como la referencia): la copa es un racimo de grupos de hojas; cada grupo
@@ -377,8 +379,10 @@ function pintar(raiz = document) {
   FILAS_MATA.forEach((f, capa) => {
     gm.fillStyle = f.tonos[0]; gm.fillRect(0, f.base - 6, 400, 6);
     for (let x = -4; x < 404; x += f.paso[0] + azar() * (f.paso[1] - f.paso[0])) {
-      if (x > 138 + capa * 3 && x < 190 - capa * 3) continue;      // hueco delante del templo
-      const rad = Math.round(f.rad[0] + azar() * (f.rad[1] - f.rad[0])), cy = f.base - rad + 2;
+      // delante del templo solo matas bajas (capa de delante) para que asiente en el suelo sin taparlo
+      if (x > 138 && x < 190 && capa === 0) continue;
+      const bajo = capa === 1 && x > 138 && x < 190;
+      const rad = bajo ? 4 + Math.round(azar() * 2) : Math.round(f.rad[0] + azar() * (f.rad[1] - f.rad[0])), cy = f.base - rad + 2;
       disco(x, cy + 1, rad, f.tonos[0]);                                  // sombra/contorno
       disco(x - 0.5, cy, rad - 1, f.tonos[1]);                            // cuerpo
       disco(x + rad * 0.2, cy - rad * 0.25, Math.max(1, Math.round(rad * 0.62)), f.tonos[2]);   // volumen
@@ -387,6 +391,15 @@ function pintar(raiz = document) {
       if (capa && azar() < 0.45) { const c = ['#e8503a', '#f0d040', '#f08ab8', '#9ab8ff'][Math.floor(azar() * 4)]; for (let k = 0; k < 3; k++) { gm.fillStyle = c; gm.fillRect(Math.round(x - rad * 0.6 + azar() * rad * 1.2), Math.round(cy - rad * 0.4 + azar() * rad * 0.8), 1, 1); } }
     }
   });
+  // franja continua de matas bajas delante del templo, para que su base quede entre vegetación
+  {
+    const f = FILAS_MATA[1];
+    for (let x = 134; x < 196; x += 3 + azar() * 3) {
+      const rad = 6 + Math.round(azar() * 3), cy = f.base - rad + 2;
+      disco(x, cy + 1, rad, f.tonos[0]); disco(x - 0.5, cy, rad - 1, f.tonos[1]);
+      disco(x + rad * 0.2, cy - rad * 0.25, Math.max(1, Math.round(rad * 0.6)), f.tonos[2]); disco(x + rad * 0.35, cy - rad * 0.45, 1, f.tonos[3]);
+    }
+  }
   preparar('.paisaje .pj-media', `<image href="${mata.toDataURL()}" x="0" y="210" width="2000" height="200" style="image-rendering:pixelated" preserveAspectRatio="none"/>`);
   preparar('.paisaje .pj-arbol', '');
 
@@ -448,7 +461,7 @@ function pintar(raiz = document) {
       if (y < 2) v = Math.min(1, v + 0.25 - y * 0.1);
       const c = AGUA[Math.max(0, Math.min(AGUA.length - 1, Math.floor(v * AGUA.length)))];
       // brillos en las crestas de las ondas: se mueven con el agua porque salen de la misma ola
-      const cresta = v > 0.8 && Math.sin(x * 1.7 + y * 3.1) > 0.55;
+      const cresta = v > 0.84 && ((x * 7 + y * 13) % 17) === 0;
       const col = cresta ? [111, 151, 172] : c;
       const i = (y * W + x) * 4; d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
     }
