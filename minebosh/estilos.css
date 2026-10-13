@@ -457,3 +457,14 @@ html { scrollbar-color: var(--fire-2) #050e07; scrollbar-width: auto; }
   .corona-flota { left: calc(var(--hueco) - 19px); top: -20px; }
   .corona-flota svg { width: 32px; height: 32px; }
 }
+
+/* ---------- paisaje de selva: montañas, cascada, templo, árbol gigante y río ---------- */
+/* La escena es más alta que la pantalla: el río y el suelo quedan por debajo y suben al hacer scroll. */
+.paisaje { position: fixed; left: 0; right: 0; bottom: -28vh; height: 86vh; z-index: 0; pointer-events: none; overflow: hidden; will-change: transform; }
+.paisaje .pj { position: absolute; left: -4%; width: 108%; will-change: transform; }
+.paisaje .pj-lejos { bottom: 38%; height: 60%; }
+.paisaje .pj-templo, .paisaje .pj-media { bottom: 34%; height: 48%; }
+.paisaje .pj-arbol { bottom: 6%; height: 62%; overflow: visible; }
+.paisaje .pj-cerca { bottom: 0; height: 30%; }
+.paisaje .pj-rio { position: absolute; left: 0; width: 100%; bottom: 12%; height: 24%; image-rendering: pixelated; }
+@media (max-width: 920px) { .paisaje { height: 60vh; bottom: -20vh; } }

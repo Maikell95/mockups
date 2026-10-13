@@ -94,18 +94,35 @@ function pintar(raiz = document) {
   const C = {"g": "#3fbf4a", "G": "#16a334", "b": "#7a5230", "r": "#e8332f", "R": "#a51d1a", "o": "#ff7a4a", "y": "#ffcf3a", "Y": "#e09a12", "u": "#3a9cf0", "U": "#1d4fa8", "w": "#ffffff", "k": "#111111", "s": "#e4e0d4", "S": "#7a7466", "K": "#000000"};
   let hojas = [], luces = [], loros = [];
   const hoja = inicio => {
-    const e = [2, 2, 3, 3, 3, 4][Math.floor(Math.random() * 6)];
+    const e = [1, 1, 1, 2, 2, 2][Math.floor(Math.random() * 6)];   // pequeñas
     return { x: Math.random() * innerWidth, y: inicio ? Math.random() * innerHeight : -40, e, tipo: tipoAlAzar(), p: Math.floor(Math.random() * PALETAS_HOJA.length),
       v: (0.25 + Math.random() * 0.4) * (0.7 + e * 0.15), rot: Math.random() * 6.3, vr: (Math.random() - 0.5) * 0.02, vuelta: 600 + Math.random() * 900, o: Math.random() * 6.3,
       alfa: 0.5 + e * 0.1 };
   };
   const luz = () => ({ x: Math.random() * innerWidth, y: innerHeight * (0.35 + Math.random() * 0.65), t: Math.random() < 0.3 ? 3 : 2, o: Math.random() * 6.3 });
-  // Cada loro vuela con su altura, velocidad y tamaño (los pequeños parecen más lejos); a veces en bandada.
-  const loro = (base) => {
-    const izq = base ? base.v > 0 : Math.random() < 0.5;
-    const e = base ? base.e : (Math.random() < 0.35 ? 2 : 3);  // 2 = lejos (64 px), 3 = cerca (96 px)
-    return { x: base ? base.x - (izq ? 1 : -1) * (100 + Math.random() * 70) : (izq ? -110 : innerWidth + 110), y: base ? base.y + 25 + Math.random() * 35 : 175 + Math.random() * innerHeight * 0.35,
-      v: base ? base.v * (0.95 + Math.random() * 0.1) : (izq ? 1 : -1) * (1.5 + Math.random() * 1.1) * (e === 2 ? 0.75 : 1), e, o: Math.random() * 6.3, fase: Math.random() * 4, planeo: 0 };
+  // Guacamayo posado (de perfil, mirando a la derecha): cabeza arriba, ala amarilla y azul, cola colgando.
+  const POSADO = ['....KKKK....', '...KrrrrK...', '..KrrwwkK...', '..KrrwwrsK..', '..KrrrrrSK..', '..KrrrrrK...', '.KryyrrrK...', '.KryyyrrK...', '.KruuyyrK...', '.KruuurrK...', '..KuuurK....', '..KkKKkK....', '...KuuK.....', '...KuuK.....', '...KuUK.....', '....KK......'];
+  // Dónde se posan (en las coordenadas 0–2000 × 0–400 de cada capa del paisaje): barandilla, ramas y tejado
+  // del árbol gigante y las copas de los árboles que sobresalen.
+  const AX = 1720;
+  const PERCHAS = [['.paisaje .pj-arbol', AX - 85, 140], ['.paisaje .pj-arbol', AX + 180, 140], ['.paisaje .pj-arbol', AX - 52, 210], ['.paisaje .pj-arbol', AX + 160, 180],
+    ['.paisaje .pj-arbol', AX, 62], ['.paisaje .pj-media', 195, 150], ['.paisaje .pj-media', 1085, 138], ['.paisaje .pj-media', 1370, 165], ['.paisaje .pj-media', 565, 178]];
+  const enPantalla = ([sel, x, y]) => {
+    const el = $(sel); if (!el) return null;
+    const c = el.getBoundingClientRect(), esc = Math.max(c.width / 2000, c.height / 400);
+    const ox = (el.getAttribute('preserveAspectRatio') || '').startsWith('xMax') ? c.width - 2000 * esc : (c.width - 2000 * esc) / 2;
+    return { x: c.left + ox + x * esc, y: c.top + c.height - 400 * esc + y * esc };
+  };
+  const E = 1.5;   // tamaño de cada píxel del loro (pequeños)
+  const perchaLibre = (actual) => {
+    const ocupadas = new Set(loros.map(l => l.percha));
+    const libres = PERCHAS.map((p, i) => i).filter(i => i !== actual && !ocupadas.has(i)).filter(i => { const p = enPantalla(PERCHAS[i]); return p && p.x > 20 && p.x < innerWidth - 20 && p.y > 120 && p.y < innerHeight - 20; });
+    return libres.length ? libres[Math.floor(Math.random() * libres.length)] : null;
+  };
+  const loro = (ahora) => {
+    const p = perchaLibre(null); if (p === null) return null;
+    const izq = Math.random() < 0.5;
+    return { estado: 'vuela', percha: p, desde: { x: izq ? -60 : innerWidth + 60, y: 120 + Math.random() * innerHeight * 0.3 }, t0: ahora, dur: 4000 + Math.random() * 2500, fase: Math.random() * 4 };
   };
   const ajustar = () => {
     lienzo.width = innerWidth * devicePixelRatio; lienzo.height = innerHeight * devicePixelRatio;
@@ -117,7 +134,7 @@ function pintar(raiz = document) {
   // Al dar la vuelta se usa el ancho del sprite completo (las filas no miden todas lo mismo).
   const dibujarSprite = (filas, x, y, e, espejo) => {
     const ancho = Math.max(...filas.map(f => f.length));
-    filas.forEach((f, j) => [...f].forEach((ch, i) => { if (C[ch]) { ctx.fillStyle = C[ch]; ctx.fillRect(Math.round(x + (espejo ? ancho - 1 - i : i) * e), Math.round(y + j * e), e, e); } }));
+    filas.forEach((f, j) => [...f].forEach((ch, i) => { if (C[ch]) { ctx.fillStyle = C[ch]; ctx.fillRect(Math.round(x + (espejo ? ancho - 1 - i : i) * e), Math.round(y + j * e), Math.ceil(e), Math.ceil(e)); } }));
   };
   let proximo = 0;
   const dibujar = ms => {
@@ -134,27 +151,261 @@ function pintar(raiz = document) {
       if (h.y > innerHeight + 40) Object.assign(h, hoja(false));
     }
     ctx.globalAlpha = 1;
-    if (ms > proximo && loros.length < 3) {
-      const guia = loro(); loros.push(guia);
-      if (Math.random() < 0.4) { loros.push(loro(guia)); if (Math.random() < 0.4) loros.push(loro(guia)); }
-      proximo = ms + 5000 + Math.random() * 8000;
-    }
+    if (ms > proximo && loros.length < 3) { const l = loro(ms); if (l) loros.push(l); proximo = ms + 4000 + Math.random() * 6000; }
+    const suave = k => k * k * (3 - 2 * k);
     loros = loros.filter(b => {
-      b.x += b.v;
-      // Alterna aleteo y planeo: al planear baja un poco con las alas abiertas.
-      if (b.planeo > 0) b.planeo--; else if (Math.random() < 0.006) b.planeo = 60 + Math.random() * 80;
-      const ala = b.planeo > 0 ? 'medio' : ALETEO[Math.floor(ms / 95 + b.fase) % 4];
-      const impulso = ala === 'abajo' ? -1.5 : ala === 'arriba' ? 1 : 0;
-      b.y += b.planeo > 0 ? 0.25 : -0.08;
-      const y = b.y + Math.sin(b.x / 160 + b.o) * 14 + impulso * b.e;
-      ctx.globalAlpha = b.e === 2 ? 0.75 : 1;
-      dibujarSprite(LORO[ala], b.x, y, b.e, b.v < 0);
-      ctx.globalAlpha = 1;
-      return b.x > -280 && b.x < innerWidth + 280;
+      const destino = b.percha === null ? b.salida : enPantalla(PERCHAS[b.percha]);
+      if (!destino) return false;
+      if (b.estado === 'posado') {
+        // posado: de vez en cuando se gira; al rato despega hacia otra percha o se va de la pantalla
+        if (ms > b.gira) { b.mira = !b.mira; b.gira = ms + 1500 + Math.random() * 3000; }
+        dibujarSprite(POSADO, destino.x - 6 * E, destino.y - 16 * E, E, b.mira);
+        if (ms > b.hasta) {
+          const otra = Math.random() < 0.6 ? perchaLibre(b.percha) : null;
+          b.desde = { x: destino.x, y: destino.y - 10 * E }; b.t0 = ms; b.estado = 'vuela';
+          if (otra !== null) { b.percha = otra; b.dur = 2500 + Math.random() * 2000; }
+          else { b.percha = null; b.salida = { x: Math.random() < 0.5 ? -80 : innerWidth + 80, y: 60 + Math.random() * innerHeight * 0.25 }; b.dur = 3500 + Math.random() * 2000; }
+        }
+        return true;
+      }
+      // en vuelo: trayectoria en arco desde donde estaba hasta la percha (o fuera de la pantalla)
+      const k = Math.min(1, (ms - b.t0) / b.dur), s2 = suave(k);
+      const x = b.desde.x + (destino.x - b.desde.x) * s2;
+      const y = b.desde.y + (destino.y - 18 * E - b.desde.y) * s2 - Math.sin(Math.PI * k) * 70;
+      const ala = k > 0.85 ? 'medio' : ALETEO[Math.floor(ms / 95 + b.fase) % 4];
+      dibujarSprite(LORO[ala], x - 16 * E, y - 12 * E, E, destino.x < b.desde.x);
+      if (k >= 1) {
+        if (b.percha === null) return false;
+        b.estado = 'posado'; b.hasta = ms + 4000 + Math.random() * 7000; b.mira = destino.x < b.desde.x; b.gira = ms + 2000;
+      }
+      return true;
     });
     if (!reducido) requestAnimationFrame(dibujar);
   };
   ajustar(); addEventListener('resize', ajustar); requestAnimationFrame(dibujar);
+})();
+
+/* ======================= paisaje de selva (capas con parallax) ======================= */
+(() => {
+  let semilla = 11;
+  const azar = () => (semilla = (semilla * 16807) % 2147483647) / 2147483647;
+  const r = (x, y, w, h, fill, extra = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" ${extra}/>`;
+  const preparar = (sel, contenido, alinear = 'xMidYMax') => { const svg = $(sel); if (!svg) return; svg.setAttribute('viewBox', '0 0 2000 400'); svg.setAttribute('preserveAspectRatio', alinear + ' slice'); svg.innerHTML = contenido; };
+  // Perfil de bloques que cambia en cada bloque, como el terreno de Minecraft.
+  const cordillera = (base, amp, bloque, suave) => {
+    let d = 'M0 400 V' + base, previo = base;
+    for (let x = 0; x <= 2000; x += bloque) {
+      const onda = base - amp * (0.5 + 0.5 * Math.sin(x / suave) * Math.cos(x / (suave * 2.7) + 1));
+      let y = Math.round((onda + (azar() - 0.5) * amp * 0.45) / 8) * 8;
+      if (y === previo) y += azar() < 0.5 ? -8 : 8;
+      y = Math.max(16, Math.min(392, y)); previo = y;
+      d += ` V${y} H${x + bloque}`;
+    }
+    return d + ' V400 Z';
+  };
+  const textura = (id, base, motas, n = 26) => {
+    let t = `<rect width="16" height="16" fill="${base}"/>`;
+    for (let i = 0; i < n; i++) t += r(Math.floor(azar() * 16), Math.floor(azar() * 16), azar() < 0.3 ? 2 : 1, 1, motas[Math.floor(azar() * motas.length)]);
+    return `<pattern id="${id}" width="16" height="16" patternUnits="userSpaceOnUse">${t}</pattern>`;
+  };
+
+  // Hojas de jungla como en Minecraft: grupitos de hojas de varios verdes con huecos oscuros entre ellas.
+  const hojasJungla = (id, hueco, tonos) => {
+    let t = `<rect width="16" height="16" fill="${hueco}"/>`;
+    for (let i = 0; i < 46; i++) t += r(Math.floor(azar() * 16), Math.floor(azar() * 16), azar() < 0.5 ? 2 : 1, azar() < 0.5 ? 2 : 1, tonos[Math.floor(azar() * tonos.length)]);
+    for (let i = 0; i < 5; i++) t += r(Math.floor(azar() * 16), Math.floor(azar() * 16), 1, 1, tonos[tonos.length - 1]);
+    return `<pattern id="${id}" width="16" height="16" patternUnits="userSpaceOnUse">${t}</pattern>`;
+  };
+  // Copa redondeada hecha de filas de bloques con el borde irregular (nada de rectángulos lisos).
+  const copa = (cx, top, ancho, alto, relleno, luz, sombra) => {
+    let c = '';
+    for (let j = 0; j < alto; j += 6) {
+      const t = (j + 3) / alto, mitad = Math.max(8, (ancho / 2) * Math.sqrt(Math.max(0, 1 - (2 * t - 1) ** 2)) + (azar() - 0.5) * 14);
+      const x = Math.round((cx - mitad) / 2) * 2, w = Math.round(mitad);
+      c += r(x, top + j, w * 2, 6, relleno);
+      if (j === 0) c += r(x, top + j, w * 2, 2, luz);                       // canto de arriba al sol
+      else c += r(x, top + j, 4, 6, luz);                                    // y el borde izquierdo, sin rayar la copa
+      if (j >= alto - 12) c += r(x, top + j + 4, w * 2, 2, sombra);
+    }
+    return c;
+  };
+
+  // 1) Montañas lejanas con la cascada (colores apagados: están lejos).
+  const lejos = cordillera(200, 170, 18, 150);
+  const XC = 430;   // x de la cascada (en coordenadas 0–2000)
+  // Pico rocoso más alto que la cordillera: la cascada sale de una grieta cerca de la cima.
+  let pico = 'M290 400', y = 400;
+  for (let k = 0; k <= 26; k++) { const x = 290 + k * 10, alt = 400 - Math.min(k, 26 - k) * 30 - azar() * 14; y = Math.round(alt / 6) * 6; pico += ` V${y} H${x + 10}`; }
+  pico += ' V400 Z';
+  preparar('.paisaje .pj-lejos', `<defs>${textura('pj-roca', '#2d4a35', ['#335440', '#273f2e', '#3a5c44'])}${textura('pj-pico', '#3a4840', ['#46564c', '#2e3a33', '#4f6052', '#3a5c44'], 34)}
+    <pattern id="pj-agua-cae" width="12" height="24" patternUnits="userSpaceOnUse">
+      ${r(0, 0, 12, 24, '#3a6a80')}${r(2, 0, 2, 10, '#6f9cb2')}${r(7, 6, 2, 12, '#55879e')}${r(4, 14, 2, 8, '#8fb6c8')}${r(9, 18, 2, 6, '#6f9cb2')}
+      <animateTransform attributeName="patternTransform" type="translate" from="0 0" to="0 24" dur="1.1s" repeatCount="indefinite"/></pattern></defs>
+    <path d="${lejos}" fill="#7fae6a" transform="translate(0 -3)" shape-rendering="crispEdges"/>
+    <path d="${lejos}" fill="url(#pj-roca)" shape-rendering="crispEdges"/>
+    <path d="${pico}" fill="#8fae7a" transform="translate(0 -3)" shape-rendering="crispEdges"/>
+    <path d="${pico}" fill="url(#pj-pico)" shape-rendering="crispEdges"/>
+    <g shape-rendering="crispEdges">${r(XC - 10, 92, 34, 16, '#141c16')}${r(XC - 10, 92, 34, 3, '#2a3a2e')}${r(XC, 100, 16, 300, 'url(#pj-agua-cae)')}${r(XC - 2, 100, 2, 300, '#9fbccc', 'opacity="0.3"')}${r(XC + 16, 100, 2, 300, '#1e3a48', 'opacity="0.5"')}</g>`);
+
+  // 2) Templo de la jungla: pirámide escalonada de piedra musgosa con escalinata, entrada y enredaderas.
+  const piedra = textura('pj-piedra', '#5e6458', ['#6f7568', '#4c5248', '#4f7a2c', '#5f8a34', '#3f6626'], 40);
+  let templo = '';
+  const TX = 700;
+  for (const [x, y, w, h] of [[TX, 250, 240, 60], [TX + 25, 205, 190, 45], [TX + 50, 165, 140, 40], [TX + 80, 130, 80, 35]]) {
+    templo += r(x, y, w, h, 'url(#pj-piedra)') + r(x, y, w, 3, '#a9c48a') + r(x + w - 8, y + 3, 8, h - 3, '#3e443a');
+  }
+  templo += r(TX + 100, 140, 40, 25, '#141810') + r(TX + 104, 144, 32, 2, '#2a3022');            // entrada oscura
+  for (let y = 165; y < 310; y += 9) templo += r(TX + 96, y, 48, 5, '#7d8373') + r(TX + 96, y + 5, 48, 2, '#4c5248');   // escalinata
+  for (let i = 0; i < 22; i++) { const x = TX + 6 + Math.floor(azar() * 228), y = [250, 205, 165, 130][Math.floor(azar() * 4)], l = 8 + Math.floor(azar() * 26); templo += r(x, y + 3, 2, l, azar() < 0.5 ? '#3f6626' : '#4f7a2c'); }
+  preparar('.paisaje .pj-templo', `<defs>${piedra}</defs><g shape-rendering="crispEdges">${templo}</g>`);
+
+  // 3) Copas de la selva por delante del templo, con árboles que sobresalen.
+  const copas = cordillera(270, 90, 14, 90);
+  let emergentes = '';
+  const EMERGENTES = [[195, 150, 120], [565, 178, 100], [1085, 138, 140], [1370, 165, 110], [1545, 188, 96]];   // [centro, cima, ancho]
+  for (const [cx, top, ancho] of EMERGENTES) emergentes += copa(cx, top, ancho, 66, 'url(#pj-hojas)', '#5f8f48', '#123010');
+  preparar('.paisaje .pj-media', `<defs>${hojasJungla('pj-hojas', '#132e10', ['#22491b', '#2a5822', '#1e4218', '#30642a', '#3d7432'])}</defs>
+    <g shape-rendering="crispEdges">${emergentes}</g>
+    <path d="${copas}" fill="#6f9e58" transform="translate(0 -3)" shape-rendering="crispEdges"/>
+    <path d="${copas}" fill="url(#pj-hojas)" shape-rendering="crispEdges"/>`);
+
+  // 4) Árbol gigante de jungla (tronco 2×2) con casa en la copa, a la derecha y en primer plano.
+  let arbol = '';
+  const AX = 1720;
+  arbol += r(AX, 120, 90, 290, 'url(#pj-corteza)') + r(AX + 70, 120, 20, 290, '#3a2c16');                       // tronco y su lado en sombra
+  arbol += r(AX - 20, 360, 30, 50, 'url(#pj-corteza)') + r(AX + 85, 350, 30, 60, 'url(#pj-corteza)');            // raíces
+  arbol += r(AX - 60, 210, 70, 12, 'url(#pj-corteza)') + r(AX + 90, 180, 80, 12, 'url(#pj-corteza)');             // ramas
+  for (const [x, y] of [[AX + 20, 260], [AX + 40, 300], [AX + 10, 330]]) arbol += r(x, y, 10, 14, '#b8732a') + r(x + 2, y + 2, 6, 3, '#d8903a');   // cacao
+  // plataforma de tablones con barandilla y la casita
+  arbol += r(AX - 110, 158, 320, 12, 'url(#pj-tablas)') + r(AX - 110, 168, 320, 3, '#4a3418');
+  arbol += r(AX - 110, 140, 320, 3, '#6e5030');
+  for (let x = AX - 108; x < AX + 210; x += 18) arbol += r(x, 140, 3, 18, '#6e5030');
+  arbol += r(AX - 60, 96, 110, 62, 'url(#pj-tablas)') + r(AX + 50, 100, 10, 58, '#4a3418');                     // casita
+  arbol += r(AX - 70, 84, 140, 12, '#5a3f22') + r(AX - 56, 72, 112, 12, '#5a3f22') + r(AX - 40, 62, 80, 10, '#5a3f22');   // tejado escalonado
+  arbol += r(AX - 30, 112, 22, 20, '#2a1c0c') + `<rect x="${AX - 28}" y="${114}" width="18" height="16" fill="#ffcf6a"><animate attributeName="opacity" values="0.75;1;0.8;1;0.75" dur="3s" repeatCount="indefinite"/></rect>` + r(AX - 20, 112, 2, 20, '#2a1c0c') + r(AX - 30, 121, 22, 2, '#2a1c0c');   // ventana con luz
+  arbol += r(AX + 8, 118, 22, 40, '#3a2810');                                                                      // puerta
+  for (let y = 170; y < 360; y += 10) arbol += r(AX - 95, y, 18, 2, '#8a6a3a');                                  // escalera de cuerda
+  arbol += r(AX - 96, 170, 2, 190, '#6e5030') + r(AX - 79, 170, 2, 190, '#6e5030');
+  // copa enorme por bloques
+  // copa formada por varios grupos de hojas superpuestos, como las de los árboles de jungla del juego
+  for (const [cx, top, ancho, alto] of [[AX - 150, 10, 200, 84], [AX + 300, 0, 210, 96], [AX - 30, -40, 260, 120], [AX + 170, -56, 260, 126], [AX + 70, -96, 220, 90]])
+    arbol += copa(cx, top, ancho, alto, 'url(#pj-hojas2)', '#6f9e58', '#123010');
+  for (let i = 0; i < 26; i++) { const x = AX - 190 + Math.floor(azar() * 500), l = 20 + Math.floor(azar() * 110); arbol += r(x, 70, 3, l, azar() < 0.5 ? '#2f6a22' : '#3b7f2a'); }   // lianas
+  preparar('.paisaje .pj-arbol', `<defs>${textura('pj-corteza', '#5a4524', ['#6e5530', '#4a3820', '#7a6038'], 50)}${hojasJungla('pj-hojas2', '#122a0f', ['#21501b', '#2a6022', '#1c4517', '#306a27', '#3f7a33'])}
+    <pattern id="pj-tablas" width="16" height="16" patternUnits="userSpaceOnUse">${r(0, 0, 16, 16, '#9a7448')}${r(0, 7, 16, 1, '#6e5030')}${r(0, 15, 16, 1, '#6e5030')}${r(5, 0, 1, 7, '#6e5030')}${r(12, 8, 1, 7, '#6e5030')}</pattern></defs>
+    <g shape-rendering="crispEdges">${arbol}</g>`, 'xMaxYMax');   // alineada a la derecha para que el árbol quede en el borde
+
+  // 5) Suelo de hierba en primer plano, con helechos y flores.
+  const suelo = cordillera(250, 80, 10, 60);
+  let plantas = '';
+  for (let i = 0; i < 70; i++) {
+    const x = Math.floor(azar() * 2000), tipo = azar();
+    if (tipo < 0.6) plantas += r(x, 0, 3, 10, '#3b8a2a') + r(x + 4, 3, 3, 7, '#2f7a22');
+    else if (tipo < 0.8) plantas += r(x, 2, 4, 4, '#d83a2a') + r(x + 1, 6, 2, 6, '#2f7a22');
+    else plantas += r(x, 2, 4, 4, '#f0d040') + r(x + 1, 6, 2, 6, '#2f7a22');
+  }
+  // hierba arriba y tierra debajo: la misma silueta 12 unidades más abajo tapa la hierba y deja solo una franja verde
+  preparar('.paisaje .pj-cerca', `<defs>${textura('pj-tierra', '#3a281a', ['#46301f', '#2e2014', '#4e3624'])}${textura('pj-hierba', '#2f5f22', ['#376a28', '#28521d', '#3e752d'])}</defs>
+    <path d="${suelo}" fill="#5f8f48" transform="translate(0 -2)" opacity="0.7" shape-rendering="crispEdges"/>
+    <path d="${suelo}" fill="url(#pj-hierba)" shape-rendering="crispEdges"/>
+    <path d="${suelo}" fill="url(#pj-tierra)" transform="translate(0 12)" shape-rendering="crispEdges"/>`);
+  const cerca = $('.paisaje .pj-cerca');
+  // plantas sobre el borde del suelo: se colocan siguiendo el perfil
+  if (cerca) {
+    const alturas = {}; suelo.replace(/V(\d+) H(\d+)/g, (_, y, x) => { alturas[+x] = +y; });
+    const xs = Object.keys(alturas).map(Number).sort((a, b) => a - b);
+    const alto = x => { let y = 250; for (const k of xs) { if (k > x) break; y = alturas[k]; } return y; };
+    let p = '';
+    plantas.replace(/<rect x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)" fill="([^"]+)" \/>/g, (_, x, y, w, hh, f) => { p += r(+x, alto(+x) - 12 + +y, +w, +hh, f); });
+    cerca.insertAdjacentHTML('beforeend', `<g shape-rendering="crispEdges">${p}</g>`);
+  }
+
+  // Parallax: la escena sube con el scroll hasta enseñar el río y el suelo; cada capa se mueve un poco distinto.
+  const escena = $('.paisaje');
+  let mx = 0, pendiente = false;
+  const mover = () => {
+    pendiente = false;
+    const sube = Math.min(scrollY * 0.45, innerHeight * (innerWidth > 920 ? 0.28 : 0.2));
+    escena.style.transform = `translateY(${(-sube).toFixed(1)}px)`;
+    if (reducido) return;
+    $$('.paisaje .pj').forEach(el => { const k = +el.dataset.k; el.style.transform = `translate(${(-mx * k * 60).toFixed(1)}px, ${(sube * k * 0.8).toFixed(1)}px)`; });
+  };
+  const pedir = () => { if (!pendiente) { pendiente = true; requestAnimationFrame(mover); } };
+  addEventListener('scroll', pedir, { passive: true });
+  addEventListener('resize', pedir);
+  if (!reducido) addEventListener('pointermove', e => { mx = e.clientX / innerWidth - 0.5; pedir(); }, { passive: true });
+  mover();
+
+  // Río: agua de Minecraft en movimiento (1 píxel = 5 px), con espuma y la salpicadura de la cascada.
+  const rio = $('.paisaje .pj-rio'); if (!rio) return;
+  const rctx = rio.getContext('2d');
+  // Azul verdoso apagado: el río está lejos y no debe robar protagonismo.
+  const AGUA = [[14, 34, 48], [18, 44, 62], [22, 56, 78], [28, 68, 92], [36, 82, 106], [50, 100, 122], [74, 126, 146]];
+  let W = 0, H = 0, img;
+  const ajustarRio = () => { W = Math.ceil(rio.clientWidth / 5); H = Math.ceil(rio.clientHeight / 5); rio.width = W; rio.height = H; img = rctx.createImageData(W, H); };
+  const lejosSvg = $('.paisaje .pj-lejos');
+  const pintarRio = t => {
+    const d = img.data;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      // río tranquilo: ondas lentas que se desplazan despacio a la derecha
+      let v = Math.sin(x * 0.09 - t * 0.35 + y * 0.25) + Math.sin(y * 0.5 + t * 0.2) * 0.5 + Math.sin((x - t * 2) * 0.05) + Math.sin(x * 0.021 + t * 0.07) * 1.2;
+      v = (v + 3.8) / 7.6;
+      if (y < 2) v = Math.min(1, v + 0.25 - y * 0.1);
+      const c = AGUA[Math.max(0, Math.min(AGUA.length - 1, Math.floor(v * AGUA.length)))];
+      const i = (y * W + x) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255;
+    }
+    rctx.putImageData(img, 0, 0);
+    // espuma que corre con el agua
+    rctx.fillStyle = '#6f97ac';
+    for (let k = 0; k < W / 12; k++) { const x = ((k * 37 + t * 3) % (W + 10)) - 5, y = (k * 13) % H; rctx.fillRect(Math.round(x), y, 2, 1); }
+    // salpicadura donde cae la cascada (se calcula su posición real en pantalla)
+    if (lejosSvg) {
+      const caja = lejosSvg.getBoundingClientRect(), rc = rio.getBoundingClientRect();
+      const esc = Math.max(caja.width / 2000, caja.height / 400), ox = (caja.width - 2000 * esc) / 2;
+      const sx = (caja.left + ox + (XC + 9) * esc - rc.left) / 5;
+      rctx.fillStyle = '#9fbccc';
+      for (let k = 0; k < 7; k++) rctx.fillRect(Math.round(sx + Math.sin(t * 3 + k * 2) * 3), Math.round(Math.abs(Math.sin(t * 2.5 + k)) * 2), 1, 1);
+    }
+  };
+  ajustarRio(); addEventListener('resize', ajustarRio);
+  pintarRio(0);
+  if (reducido) return;
+  let ultimo = 0;
+  const bucle = ms => { if (ms - ultimo > 80 && rio.getBoundingClientRect().top < innerHeight) { ultimo = ms; pintarRio(ms / 1000); } requestAnimationFrame(bucle); };
+  requestAnimationFrame(bucle);
+})();
+
+/* ======================= hojas al hacer clic ======================= */
+// Cada estallido usa un lienzo pequeño solo alrededor del clic y se elimina al acabar.
+(() => {
+  if (reducido) return;
+  const COLORES = ['#8af06a', '#34d64a', '#16a334', '#ffcf3a', '#3b7f2a'];
+  const TAM = 200, MAX = 4;
+  let activos = 0;
+  document.addEventListener('pointerdown', e => {
+    if (activos >= MAX || !e.target.closest('button, a, .producto, .card.hover, [data-copiar]')) return;
+    activos++;
+    const dpr = Math.min(devicePixelRatio, 2), c = document.createElement('canvas');
+    c.width = c.height = TAM * dpr;
+    c.style.cssText = `position:fixed;left:${e.clientX - TAM / 2}px;top:${e.clientY - TAM / 2}px;width:${TAM}px;height:${TAM}px;pointer-events:none;z-index:80`;
+    document.body.appendChild(c);
+    const ctx = c.getContext('2d'); ctx.scale(dpr, dpr);
+    const hojas = Array.from({ length: 14 }, () => { const a = Math.random() * Math.PI * 2, v = 70 + Math.random() * 150; return { x: TAM / 2, y: TAM / 2, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 110, vida: 0.6 + Math.random() * 0.5, c: COLORES[(Math.random() * COLORES.length) | 0], o: Math.random() * 6 }; });
+    let antes = performance.now();
+    const paso = ahora => {
+      const dt = Math.min(0.05, (ahora - antes) / 1000); antes = ahora;
+      ctx.clearRect(0, 0, TAM, TAM);
+      let vivas = 0;
+      for (const h of hojas) {
+        if ((h.vida -= dt) <= 0) continue;
+        vivas++;
+        h.vy += 260 * dt; h.vx *= 1 - 2.5 * dt; h.x += (h.vx + Math.sin(ahora / 120 + h.o) * 30) * dt; h.y += h.vy * dt;
+        ctx.globalAlpha = Math.min(1, h.vida * 3); ctx.fillStyle = h.c; ctx.fillRect(h.x | 0, h.y | 0, 4, 2); ctx.fillRect((h.x | 0) + 1, (h.y | 0) - 1, 2, 4);
+      }
+      if (vivas) requestAnimationFrame(paso); else { c.remove(); activos--; }
+    };
+    requestAnimationFrame(paso);
+  }, { passive: true });
 })();
 
 /* ======================= datos en vivo ======================= */
@@ -349,7 +600,7 @@ function fichaRango(nombre) {
 const VISTAS = {
   inicio() {
     return `<div class="vista">
-    <header class="hero"><div class="hero-fondo"></div><div class="wrap">
+    <header class="hero"><div class="wrap">
       <div class="logo-wrap"><img src="logo.webp" alt="MineBosh"></div>
       <div class="stats">
         <span class="stat"><span class="dot"></span><b data-vivo="jugadores">…</b> jugando ahora</span>
