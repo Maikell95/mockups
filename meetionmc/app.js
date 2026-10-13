@@ -284,8 +284,10 @@ if (!reducido) {
 (() => {
   const lienzo = $('.nether .blazes'); if (!lienzo) return;
   const ctx = lienzo.getContext('2d');
-  const CABEZA = ['..yyyy..', '.yYYYYy.', 'yYkYYkYy', 'yYkYYkYy', 'yYYYYYYy', '.yYooYy.', '..yyyy..'];
-  const COL = { y: '#ffd23a', Y: '#f7a21a', k: '#3a1a00', o: '#c86a10' };
+  // Cabeza cúbica como la del juego: amarilla con textura, ojos oscuros en horizontal y la parte baja más tostada.
+  const CABEZA = ['yyyyyyyy', 'yYyyYyyY', 'YYYYYYYY', 'YYyYYYyY', 'YkkYYkkY', 'OYYYYYYO', 'OOYOOYOO', 'OOOOOOOO'];
+  const COL = { y: '#ffe066', Y: '#f2b42a', O: '#c77a14', k: '#4a2206' };
+  const VARA = ['#ffe066', '#f7c23a', '#e8a020', '#d0881a', '#a8620e', '#7a420a'];   // de amarillo arriba a marrón abajo
   const SPAWNER = { x: 1680, y: 70 };
   const TORRES = [{ x: 1275, y: 200 }, { x: 1680, y: 190 }];
   let W = 0, H = 0, esc = 1, ox = 0, oy = 0, blazes = [], proximo = 0;
@@ -317,15 +319,16 @@ if (!reducido) {
     const g = ctx.createRadialGradient(sx, sy + 4 * p, 0, sx, sy + 4 * p, 10 * p);
     g.addColorStop(0, 'rgba(255, 150, 40, 0.35)'); g.addColorStop(1, 'rgba(255, 150, 40, 0)');
     ctx.fillStyle = g; ctx.fillRect(sx - 10 * p, sy - 6 * p, 20 * p, 20 * p);
-    // varas que giran alrededor del cuerpo: las de detrás se pintan antes que la cabeza
+    // Dos anillos de 4 varas que giran en sentidos contrarios; las de detrás se pintan antes que la cabeza.
     const varas = [];
-    for (let i = 0; i < 6; i++) {
-      const a = t / 260 + i * Math.PI / 3 * (i < 3 ? 1 : -1), capa = i < 3 ? 0 : 1;
-      varas.push({ x: sx + Math.cos(a) * 6 * p - p, y: sy + (4 + capa * 4) * p + Math.sin(a * 2) * p, z: Math.sin(a) });
+    for (let i = 0; i < 8; i++) {
+      const arriba = i < 4, a = (arriba ? 1 : -1) * t / 420 + (i % 4) * Math.PI / 2 + (arriba ? 0 : Math.PI / 4);
+      const radio = arriba ? 7 : 5;
+      varas.push({ x: sx + Math.cos(a) * radio * p - p, y: sy + (arriba ? 0 : 6) * p, z: Math.sin(a) });
     }
-    const vara = v => { ctx.fillStyle = '#b8770c'; ctx.fillRect(Math.round(v.x), Math.round(v.y), 2 * p, 4 * p); ctx.fillStyle = '#ffcf3a'; ctx.fillRect(Math.round(v.x), Math.round(v.y), p, 4 * p); };
+    const vara = v => VARA.forEach((c, j) => { ctx.fillStyle = c; ctx.fillRect(Math.round(v.x), Math.round(v.y + j * p), 2 * p, p); });
     varas.filter(v => v.z < 0).forEach(vara);
-    CABEZA.forEach((f, j) => [...f].forEach((ch, i) => { if (COL[ch]) { ctx.fillStyle = COL[ch]; ctx.fillRect(Math.round(sx + (i - 4) * p), Math.round(sy + (j - 3) * p), p, p); } }));
+    CABEZA.forEach((f, j) => [...f].forEach((ch, i) => { if (COL[ch]) { ctx.fillStyle = COL[ch]; ctx.fillRect(Math.round(sx + (i - 4) * p), Math.round(sy + (j - 6) * p), p, p); } }));
     varas.filter(v => v.z >= 0).forEach(vara);
   };
   const dibujar = ahora => {
