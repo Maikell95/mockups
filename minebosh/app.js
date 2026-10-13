@@ -266,6 +266,56 @@ function pintar(raiz = document) {
   for (let i = 0; i < 22; i++) { const x = TX + 6 + Math.floor(azar() * 228), y = [250, 205, 165, 130][Math.floor(azar() * 4)], l = 8 + Math.floor(azar() * 26); templo += r(x, y + 3, 2, l, azar() < 0.5 ? '#3f6626' : '#4f7a2c'); }
   preparar('.paisaje .pj-templo', `<defs>${piedra}</defs><g shape-rendering="crispEdges">${templo}</g>`);
 
+  // Árboles en pixel art con volumen (como la referencia): la copa es un racimo de grupos de hojas; cada grupo
+  // tiene sombra abajo, tono medio y brillo arriba a la derecha (de donde viene la luz). Los grupos de abajo y de
+  // la izquierda son más oscuros. El tronco tiene corteza y se abre en ramas que entran en la copa.
+  const PAL_HOJAS = [
+    ['#0a1a09', '#10290e', '#173813', '#1f4919', '#2a5c22', '#386f2d'],   // fila del fondo
+    ['#0b1d0a', '#13330f', '#1c4a16', '#28621e', '#3a7c2c', '#56963f'],
+    ['#0c200b', '#153a11', '#20551a', '#2f7124', '#468f34', '#69ab4b'],   // fila de delante
+  ];
+  const PAL_TRONCO = [['#0f0a05', '#1c140a', '#2a1f10'], ['#1a1108', '#35261a', '#523b26'], ['#1e1409', '#43301d', '#6b4f33']];
+  const lienzoArbol = (w, h, fila, conTronco = true, nGrupos = 0) => {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d'), hoja = PAL_HOJAS[fila], tr = PAL_TRONCO[fila];
+    const disco = (cx, cy, rad, col) => { g.fillStyle = col; for (let y = -rad; y <= rad; y++) { const m = Math.floor(Math.sqrt(rad * rad - y * y) + 0.35); g.fillRect(Math.round(cx - m), Math.round(cy + y), m * 2 + 1, 1); } };
+    const copaY = conTronco ? h * 0.38 : h * 0.5, rx = w * 0.46, ry = conTronco ? h * 0.33 : h * 0.46;
+    if (conTronco) {
+      const tx = w / 2, base = h - 1, tw = Math.max(3, Math.round(w * 0.13));
+      for (let y = Math.round(copaY); y <= base; y++) {
+        const k = (y - copaY) / (base - copaY), raiz = y > base - 4 ? (4 - (base - y)) * 1.6 : 0;
+        const ancho = Math.round(tw * (0.75 + 0.45 * k) + raiz), x0 = Math.round(tx - ancho / 2);
+        for (let x = 0; x < ancho; x++) { const t = x / ancho; g.fillStyle = azar() < 0.14 ? tr[0] : t < 0.3 ? tr[0] : t < 0.72 ? tr[1] : tr[2]; g.fillRect(x0 + x, y, 1, 1); }
+      }
+      // ramas que suben en diagonal hacia la copa
+      for (const d of [-1, 1, -0.4]) {
+        let x = tx, y = copaY + (h - copaY) * 0.3;
+        for (let i = 0; i < w * 0.22; i++) { x += d; y -= 0.8; g.fillStyle = tr[1]; g.fillRect(Math.round(x), Math.round(y), 2, 2); g.fillStyle = tr[2]; g.fillRect(Math.round(x) + 1, Math.round(y), 1, 1); }
+      }
+    }
+    // grupos de hojas: primero los de abajo, para que los de arriba (más iluminados) queden por encima
+    const cx = w / 2, n = nGrupos || Math.round(9 + w * 0.3), grupos = [], base = Math.min(w, 60);   // el tamaño de cada grupo no crece con la copa
+    for (let i = 0; i < n; i++) {
+      const a = azar() * Math.PI * 2, d = Math.sqrt(azar()) * 0.82;
+      grupos.push({ x: cx + Math.cos(a) * d * rx, y: copaY + Math.sin(a) * d * ry, r: Math.max(2, Math.round(base * (0.07 + azar() * 0.07))) });
+    }
+    grupos.sort((p, q) => q.y - p.y);
+    for (const p of grupos) {
+      const luz = ((p.x - cx) / rx) * 0.6 - ((p.y - copaY) / ry) * 0.9;           // >0: arriba a la derecha
+      const s0 = Math.max(0, Math.min(3, Math.round(1.5 + luz * 1.4)));
+      disco(p.x, p.y + 1, p.r + 1, hoja[s0]);                                      // contorno y sombra
+      disco(p.x, p.y, p.r, hoja[s0 + 1]);                                          // tono medio
+      disco(p.x + p.r * 0.25, p.y - p.r * 0.3, Math.max(1, Math.round(p.r * 0.6)), hoja[s0 + 2]);   // luz
+      g.fillStyle = hoja[Math.min(5, s0 + 3)];
+      for (let k = 0; k < 2; k++) g.fillRect(Math.round(p.x + p.r * 0.35 + azar() * 2), Math.round(p.y - p.r * 0.55 + azar() * 2), 1, 1);   // brillos
+    }
+    // algunos huecos oscuros entre las hojas
+    g.fillStyle = hoja[0];
+    for (let k = 0; k < n * 1.2; k++) { const a = azar() * Math.PI * 2, d = 0.3 + azar() * 0.6; g.fillRect(Math.round(cx + Math.cos(a) * d * rx), Math.round(copaY + Math.sin(a) * d * ry + 2), 1, 1); }
+    return { url: c.toDataURL(), w, h, cima: Math.round(copaY - ry) };
+  };
+  const imagen = (a, x, y, esc) => `<image href="${a.url}" x="${Math.round(x)}" y="${Math.round(y)}" width="${a.w * esc}" height="${a.h * esc}" style="image-rendering:pixelated"/>`;
+
   // 3) Selva: árboles con tronco en tres filas de profundidad (los de atrás más pequeños y oscuros),
   //    algunos gigantes que sobresalen, y sotobosque oscuro entre los troncos. Se deja un claro delante del templo.
   const PERCHAS_SELVA = [];
@@ -276,20 +326,16 @@ function pintar(raiz = document) {
     { base: 402, alto: [110, 200], copa: [90, 150], paso: [80, 140], hojas: 'url(#pj-hojas)', corteza: 'url(#pj-corteza-m)', luz: '#7aaf5e', sombra: '#0e260c', tluz: '#7a6038', tsom: '#2a1e10' },
   ];
   const entre = ([a, b]) => a + azar() * (b - a);
+  // 5 modelos por fila (se reutilizan) y cada árbol se coloca con su escala
+  const MODELOS = [0, 1, 2].map(fila => Array.from({ length: 5 }, (_, i) => lienzoArbol([30, 36, 42][fila] + i * 4, [46, 56, 66][fila] + i * 6, fila)));
   FILAS.forEach((f, fila) => {
-    for (let x = -20 + azar() * 40; x < 2000; x += entre(f.paso)) {
+    for (let x = -30 + azar() * 40; x < 2030; x += entre(f.paso)) {
       if (x > 680 + fila * 6 && x < 950 - fila * 6) continue;     // claro alrededor del templo
-      const gigante = fila === 1 && azar() < 0.18;
-      const alto = gigante ? 230 + azar() * 40 : entre(f.alto), w = gigante ? 18 : 6 + Math.round(azar() * 6) * 2;
-      const top = f.base - alto, ancho = (gigante ? 1.4 : 1) * entre(f.copa);
-      bosque += tronco(Math.round(x), top + 20, f.base, w, f.corteza, f.tluz, f.tsom);
-      if (fila > 0 && azar() < 0.5) bosque += r(Math.round(x) + w, top + 40 + azar() * 30, 18 + azar() * 20, 6, f.corteza);   // rama
-      // copa de 2–3 grupos de hojas un poco desplazados
-      bosque += copa(x + w / 2 - ancho * 0.18, top + 14, ancho * 0.7, alto * 0.35, f.hojas, f.luz, f.sombra);
-      bosque += copa(x + w / 2 + ancho * 0.16, top + 6, ancho * 0.75, alto * 0.4, f.hojas, f.luz, f.sombra);
-      if (azar() < 0.6) bosque += copa(x + w / 2, top - 8, ancho * 0.5, alto * 0.25, f.hojas, f.luz, f.sombra);
-      for (let k = 0; k < 3; k++) if (azar() < 0.5) bosque += r(Math.round(x - ancho * 0.3 + azar() * ancho * 0.8), top + alto * 0.3, 2, 14 + azar() * 40, f.sombra);   // lianas
-      if (fila > 0 && top < 280) PERCHAS_SELVA.push(['.paisaje .pj-media', Math.round(x + w / 2), Math.round(top - 8)]);
+      const gigante = fila === 1 && azar() < 0.15;
+      const m = MODELOS[fila][Math.floor(azar() * 5)], esc = (gigante ? 3.4 : 2.2 + fila * 0.4) * (0.85 + azar() * 0.3);
+      const y = f.base - m.h * esc;
+      bosque += imagen(m, x - (m.w * esc) / 2, y, esc);
+      if (fila > 0) PERCHAS_SELVA.push(['.paisaje .pj-media', Math.round(x), Math.round(y + m.cima * esc + 2)]);
     }
   });
   window.__perchasSelva = PERCHAS_SELVA;
@@ -316,13 +362,15 @@ function pintar(raiz = document) {
   for (let y = 170; y < 360; y += 10) arbol += r(AX - 95, y, 18, 2, '#8a6a3a');                                  // escalera de cuerda
   arbol += r(AX - 96, 170, 2, 190, '#6e5030') + r(AX - 79, 170, 2, 190, '#6e5030');
   // copa enorme por bloques
-  // copa formada por varios grupos de hojas superpuestos, como las de los árboles de jungla del juego
-  for (const [cx, top, ancho, alto] of [[AX - 150, 10, 200, 84], [AX + 300, 0, 210, 96], [AX - 30, -40, 260, 120], [AX + 170, -56, 260, 126], [AX + 70, -96, 220, 90]])
-    arbol += copa(cx, top, ancho, alto, 'url(#pj-hojas2)', '#6f9e58', '#123010');
+  // copa enorme con volumen: racimo de grupos de hojas iluminados desde arriba a la derecha
+  const copaGigante = lienzoArbol(240, 84, 2, false, 190);
+  arbol += imagen(copaGigante, AX - 300, -140, 2.6);
   for (let i = 0; i < 26; i++) { const x = AX - 190 + Math.floor(azar() * 500), l = 20 + Math.floor(azar() * 110); arbol += r(x, 70, 3, l, azar() < 0.5 ? '#2f6a22' : '#3b7f2a'); }   // lianas
   preparar('.paisaje .pj-arbol', `<defs>${textura('pj-corteza', '#5a4524', ['#6e5530', '#4a3820', '#7a6038'], 50)}${hojasJungla('pj-hojas2', '#122a0f', ['#21501b', '#2a6022', '#1c4517', '#306a27', '#3f7a33'])}
     <pattern id="pj-tablas" width="16" height="16" patternUnits="userSpaceOnUse">${r(0, 0, 16, 16, '#9a7448')}${r(0, 7, 16, 1, '#6e5030')}${r(0, 15, 16, 1, '#6e5030')}${r(5, 0, 1, 7, '#6e5030')}${r(12, 8, 1, 7, '#6e5030')}</pattern></defs>
-    <g shape-rendering="crispEdges">${arbol}</g>`, 'xMaxYMax');   // alineada a la derecha para que el árbol quede en el borde
+    <g shape-rendering="crispEdges">${arbol}</g>`, 'xMaxYMax');
+  // la copa sube por encima del marco normal: se amplía el viewBox hacia arriba (misma escala)
+  $('.paisaje .pj-arbol')?.setAttribute('viewBox', '0 -160 2000 560');   // alineada a la derecha para que el árbol quede en el borde
 
   // 5) Suelo de hierba en primer plano, con helechos y flores.
   const suelo = cordillera(250, 80, 10, 60);
