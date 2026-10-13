@@ -124,7 +124,7 @@ function pintar(raiz = document) {
   const loro = (ahora) => {
     const p = perchaLibre(null); if (!p) return null;
     const izq = Math.random() < 0.5;
-    return { estado: 'vuela', percha: p, desde: { x: izq ? -60 : innerWidth + 60, y: 120 + Math.random() * innerHeight * 0.3 }, t0: ahora, dur: 4000 + Math.random() * 2500, fase: Math.random() * 4 };
+    return { estado: 'vuela', percha: p, desde: { x: izq ? -60 : innerWidth + 60, y: 120 + Math.random() * innerHeight * 0.3 + scrollY }, t0: ahora, dur: 4000 + Math.random() * 2500, fase: Math.random() * 4 };
   };
   // Los loros van en un lienzo aparte, por encima del contenido, para poder posarse sobre los títulos.
   const lienzoLoros = document.createElement('canvas');
@@ -167,7 +167,7 @@ function pintar(raiz = document) {
       let destino = b.percha === null ? b.salida : enPantalla(b.percha);
       if (!destino) {   // el título desapareció (cambio de sección): se va volando
         if (b.percha === null) return false;
-        b.desde = b.ultimo || { x: innerWidth / 2, y: 200 }; b.t0 = ms; b.estado = 'vuela'; b.percha = null; b.dur = 3000;
+        b.desde = b.ultimo ? { x: b.ultimo.x, y: b.ultimo.y + scrollY } : { x: innerWidth / 2, y: 200 + scrollY }; b.t0 = ms; b.estado = 'vuela'; b.percha = null; b.dur = 3000;
         b.salida = { x: Math.random() < 0.5 ? -80 : innerWidth + 80, y: 60 + Math.random() * innerHeight * 0.25 }; destino = b.salida;
       }
       if (!destino) return false;
@@ -177,7 +177,7 @@ function pintar(raiz = document) {
         b.ultimo = destino; dibujarSprite(POSADO, destino.x - 6 * E, destino.y - 16 * E, E, b.mira, cl);
         if (ms > b.hasta) {
           const otra = Math.random() < 0.6 ? perchaLibre(b.percha) : null;
-          b.desde = { x: destino.x, y: destino.y - 10 * E }; b.t0 = ms; b.estado = 'vuela';
+          b.desde = { x: destino.x, y: destino.y - 10 * E + scrollY }; b.t0 = ms; b.estado = 'vuela';
           if (otra) { b.percha = otra; b.dur = 2500 + Math.random() * 2000; }
           else { b.percha = null; b.salida = { x: Math.random() < 0.5 ? -80 : innerWidth + 80, y: 60 + Math.random() * innerHeight * 0.25 }; b.dur = 3500 + Math.random() * 2000; }
         }
@@ -186,7 +186,9 @@ function pintar(raiz = document) {
       // en vuelo: trayectoria en arco desde donde estaba hasta la percha (o fuera de la pantalla)
       const k = Math.min(1, (ms - b.t0) / b.dur), s2 = suave(k);
       const x = b.desde.x + (destino.x - b.desde.x) * s2;
-      const y = b.desde.y + (destino.y - 18 * E - b.desde.y) * s2 - Math.sin(Math.PI * k) * 70;
+      // la salida se guardó en coordenadas de la página: al hacer scroll el loro se mueve con ella y no queda flotando
+      const desdeY = b.desde.y - scrollY;
+      const y = desdeY + (destino.y - 18 * E - desdeY) * s2 - Math.sin(Math.PI * k) * 70;
       const ala = k > 0.85 ? 'medio' : ALETEO[Math.floor(ms / 95 + b.fase) % 4];
       b.ultimo = { x, y }; dibujarSprite(LORO[ala], x - 16 * E, y - 12 * E, E, destino.x < b.desde.x, cl);
       if (k >= 1) {
@@ -275,7 +277,7 @@ function pintar(raiz = document) {
       ${r(0, 0, 12, 24, '#3a6a80')}${r(2, 0, 2, 10, '#6f9cb2')}${r(7, 6, 2, 12, '#55879e')}${r(4, 14, 2, 8, '#8fb6c8')}${r(9, 18, 2, 6, '#6f9cb2')}
       <animateTransform attributeName="patternTransform" type="translate" from="0 0" to="0 24" dur="1.1s" repeatCount="indefinite"/></pattern></defs>
     ${monte(lejos)}${monte(pico)}
-    <g shape-rendering="crispEdges">${r(XC - 10, 92, 34, 16, '#141c16')}${r(XC - 10, 92, 34, 3, '#2a3a2e')}${r(XC, 100, 16, 300, 'url(#pj-agua-cae)')}${r(XC - 2, 100, 2, 300, '#9fbccc', 'opacity="0.3"')}${r(XC + 16, 100, 2, 300, '#1e3a48', 'opacity="0.5"')}</g>`);
+`);
 
   // 2) Templo de la jungla: pirámide escalonada de piedra musgosa con escalinata, entrada y enredaderas.
   const piedra = textura('pj-piedra', '#5e6458', ['#6f7568', '#4c5248', '#4f7a2c', '#5f8a34', '#3f6626'], 40);
@@ -405,14 +407,6 @@ function pintar(raiz = document) {
     // espuma que corre con el agua
     rctx.fillStyle = '#6f97ac';
     for (let k = 0; k < W / 12; k++) { const x = ((k * 37 + t * 3) % (W + 10)) - 5, y = (k * 13) % H; rctx.fillRect(Math.round(x), y, 2, 1); }
-    // salpicadura donde cae la cascada (se calcula su posición real en pantalla)
-    if (lejosSvg) {
-      const caja = lejosSvg.getBoundingClientRect(), rc = rio.getBoundingClientRect();
-      const esc = Math.max(caja.width / 2000, caja.height / 400), ox = (caja.width - 2000 * esc) / 2;
-      const sx = (caja.left + ox + (XC + 9) * esc - rc.left) / 5;
-      rctx.fillStyle = '#9fbccc';
-      for (let k = 0; k < 7; k++) rctx.fillRect(Math.round(sx + Math.sin(t * 3 + k * 2) * 3), Math.round(Math.abs(Math.sin(t * 2.5 + k)) * 2), 1, 1);
-    }
   };
   ajustarRio(); addEventListener('resize', ajustarRio);
   pintarRio(0);
