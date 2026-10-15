@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="description" content="Maqueta de la web de Minemora Network: Survival, SkyWars, EggWars, SkyPvP y KitPvP. Tienda con todo el catálogo y pago con Pago Móvil, Binance Pay, Zinli o PayPal.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Minemora Network">
+<meta property="og:title" content="La nueva web de Minemora Network (maqueta)">
+<meta property="og:description" content="Tienda con todo el catálogo y pago en bolívares con Pago Móvil, Binance Pay (USDT) o Zinli. Ranking de SkyWars, eventos y jugadores en vivo.">
+<meta property="og:image" content="https://maikell95.github.io/mockups/minemora/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://maikell95.github.io/mockups/minemora/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="La nueva web de Minemora Network (maqueta)">
+<meta name="twitter:description" content="Pago en bolívares con Pago Móvil, Binance Pay o Zinli, entrega automática en el juego.">
+<meta name="twitter:image" content="https://maikell95.github.io/mockups/minemora/og.png">
+<meta name="theme-color" content="#c43998">
+<title>Minemora Network · Survival, SkyWars y EggWars</title>
+<link rel="icon" href="icono.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css?v=2">
+</head>
+<body>
+
+<canvas id="cielo"></canvas>
+
+<div class="demo-bar">Maqueta de demostración para Minemora Network · Diseñada por Maikel Ferrer → <a href="https://maikell95.github.io/Portfolio/" target="_blank" rel="noopener">Ver portafolio</a></div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand pixel" href="#inicio"><img src="icono.png" alt=""><span>MINEMORA</span></a>
+    <div class="links" id="links">
+      <a href="#inicio" data-ruta="inicio">Inicio</a>
+      <a href="#modalidades" data-ruta="modalidades">Modalidades</a>
+      <a href="#rangos" data-ruta="rangos">Rangos</a>
+      <a href="#tienda" data-ruta="tienda">Tienda</a>
+      <a href="#skywars" data-ruta="skywars">SkyWars</a>
+      <a href="#eventos" data-ruta="eventos">Eventos</a>
+      <a href="#votar" data-ruta="votar">Votar</a>
+      <a href="#wiki" data-ruta="wiki">Wiki</a>
+      <a href="#comunidad" data-ruta="comunidad">Comunidad</a>
+    </div>
+    <div class="acciones">
+      <div class="moneda" role="group" aria-label="Moneda"><button data-moneda="USD">USD</button><button data-moneda="VES">Bs.</button></div>
+      <button class="usuario" id="btn-usuario"><img id="avatar" src="https://mc-heads.net/avatar/MHF_Steve/32" alt=""><span id="nombre-usuario">Entrar</span></button>
+      <button class="btn sm carrito-btn" id="btn-carrito">Carrito <span class="num" id="num-carrito">0</span></button>
+      <button class="btn sm ghost menu-movil" id="btn-menu" aria-label="Menú">☰</button>
+    </div>
+  </div>
+</nav>
+
+<div class="evento"><svg data-pixel="calabaza"></svg> <span><b>Halloween en Survival</b> · spawn de Halloween y <b class="cian">Boost x4</b> activos · <a href="#eventos">ver evento</a></span> <svg data-pixel="murcielago"></svg></div>
+
+<main id="vista"></main>
+
+<footer class="pie">
+  <div class="wrap">
+    <div>
+      <span class="pixel">Minemora Network</span>
+      <p>Maqueta de demostración, no es la web oficial. Catálogo, precios y ventajas de los rangos tomados de la tienda pública (tienda.minemora.net); los bolívares se calculan con la tasa oficial del día; lo marcado como <span class="ejemplo">ejemplo</span> es contenido de muestra y los métodos de pago locales son una simulación. Diseñada y programada por Maikel Ferrer.</p>
+    </div>
+    <span>No afiliado a Mojang ni Microsoft.</span>
+  </div>
+</footer>
+
+<!-- carrito -->
+<div class="capa" id="capa"></div>
+<aside class="cajon" id="cajon" aria-label="Carrito">
+  <header>Tu carrito <button class="cerrar" data-cerrar aria-label="Cerrar">✕</button></header>
+  <div class="lineas" id="lineas"></div>
+  <footer>
+    <div class="total">Total <b id="total">0.00 USD</b></div>
+    <p class="total-alt" id="total-alt"></p>
+    <button class="btn mora full" id="btn-pagar">Pagar</button>
+  </footer>
+</aside>
+
+<!-- modal de producto -->
+<div class="modal" id="modal-producto" role="dialog" aria-modal="true">
+  <button class="cerrar" data-cerrar aria-label="Cerrar">✕</button>
+  <div id="contenido-producto"></div>
+</div>
+
+<!-- modal de identificación -->
+<div class="modal" id="modal-login" role="dialog" aria-modal="true">
+  <button class="cerrar" data-cerrar aria-label="Cerrar">✕</button>
+  <h3>Entra con tu nick</h3>
+  <p class="muted">Escribe tu nombre de Minecraft para que la compra llegue a tu cuenta. Vale con cuenta premium o no-premium.</p>
+  <div class="campo"><label class="pixel" for="input-usuario">Usuario</label>
+    <input id="input-usuario" maxlength="16" placeholder="Tu nick" autocomplete="off">
+  </div>
+  <div class="vista-previa"><img id="previa" src="https://mc-heads.net/avatar/MHF_Steve/48" alt=""><span id="previa-txt" class="muted">Así vas a aparecer en la tienda</span></div>
+  <button class="btn mora full" id="btn-entrar">Entrar</button>
+</div>
+
+<!-- modal de pago (simulación en 3 pasos) -->
+<div class="modal ancho" id="modal-pago" role="dialog" aria-modal="true">
+  <button class="cerrar" data-cerrar aria-label="Cerrar">✕</button>
+  <div id="contenido-pago"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="description" content="Maqueta de la tienda de Jolly Games con Mercado Pago automático: precios en tu moneda, 10 % de descuento y entrega al instante en el juego, sin abrir ticket.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Jolly Games">
+<meta property="og:title" content="La tienda de Jolly Games con Mercado Pago automático (maqueta)">
+<meta property="og:description" content="Pagas en tu moneda con Mercado Pago, transferencia o PayPal y lo recibes en el juego al instante. Sin tickets ni esperar a un staff.">
+<meta property="og:image" content="https://maikell95.github.io/mockups/jollygames/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://maikell95.github.io/mockups/jollygames/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="La tienda de Jolly Games con Mercado Pago automático (maqueta)">
+<meta name="twitter:image" content="https://maikell95.github.io/mockups/jollygames/og.png">
+<meta name="theme-color" content="#00acfc">
+<title>Jolly Games · Tienda</title>
+<link rel="icon" href="icono.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css?v=2">
+</head>
+<body>
+
+<canvas id="confeti" aria-hidden="true"></canvas>
+
+<div class="demo-bar">Maqueta de demostración para Jolly Games · Diseñada por Maikel Ferrer → <a href="https://maikell95.github.io/Portfolio/" target="_blank" rel="noopener">Ver portafolio</a></div>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="marca" href="#inicio"><img src="icono.png" alt=""><span class="pixel"><b class="azul">JOLLY</b> <b class="rojo">GAMES</b></span></a>
+    <div class="enlaces">
+      <a href="#oferta">Oferta</a>
+      <a href="#partida">Partidas</a>
+      <a href="#rangos">Rangos</a>
+      <a href="#sanciones">Sanciones</a>
+      <a href="#pagar">Cómo pagar</a>
+    </div>
+    <div class="acciones">
+      <label class="pais-sel" title="País y moneda">
+        <span class="sr">País y moneda</span>
+        <select id="sel-pais"></select>
+      </label>
+      <button class="btn sm amarillo" id="btn-carrito"><svg data-pixel="carro"></svg><span class="txt-carrito">Carrito</span> <span class="num" id="num-carrito">0</span></button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- ====== portada ====== -->
+<section class="hero" id="inicio">
+  <div class="wrap hero-grid">
+    <div class="hero-txt">
+      <div class="chips revelar">
+        <span class="chip oro"><svg data-pixel="trofeo"></svg> Temporada 10</span>
+        <span class="chip">Java + Bedrock</span>
+        <span class="chip"><span class="punto"></span> <b data-vivo="jugadores">—</b> jugando ahora</span>
+      </div>
+      <img class="logo revelar" src="logo.webp" alt="Jolly Games" width="437" height="306">
+      <h1 class="pixel revelar">Paga en tu moneda.<br><span class="azul">Juega</span> <span class="rojo">al instante.</span></h1>
+      <p class="lead revelar">La tienda de Jolly Games con <b class="mp">Mercado Pago automático</b>: eliges, pagas y el rango o la partida te llega al juego en segundos. Sin abrir ticket, sin esperar a un staff, y con el <b>10 % de descuento</b> de siempre.</p>
+      <div class="cta revelar">
+        <a class="btn azul" href="#partida"><svg data-pixel="mando"></svg> Armar mi partida</a>
+        <a class="btn rojo" href="#oferta"><svg data-pixel="regalo"></svg> Oferta de la semana</a>
+      </div>
+      <button class="ip revelar" id="btn-ip" title="Copiar IP"><span class="pixel">jollygames.live</span><span class="puerto">:25587</span><span class="copiar" id="ip-txt">Copiar IP</span></button>
+    </div>
+
+    <!-- marcador estilo scoreboard de Minecraft -->
+    <aside class="marcador revelar" aria-label="Marcador">
+      <div class="marcador-tit pixel"><span class="azul">JOLLY</span> <span class="rojo">GAMES</span></div>
+      <ul>
+        <li><span>Temporada</span><b class="oro">10</b></li>
+        <li><span>Jugadores</span><b><span data-vivo="jugadores">—</span><small>/<span data-vivo="max">300</span></small></b></li>
+        <li><span>Países en torneos</span><b>12</b></li>
+        <li><span>Discord</span><b>5.385</b></li>
+        <li class="sep"></li>
+        <li><span>Pago</span><b class="mp">Mercado Pago ✔</b></li>
+        <li><span>Tu moneda</span><b id="mar-moneda">USD</b></li>
+        <li><span>Entrega</span><b class="verde">al instante</b></li>
+        <li><span>Tickets</span><b class="rojo">0</b></li>
+      </ul>
+      <div class="marcador-pie pixel">jollygames.live</div>
+      <div class="equipos" aria-hidden="true"><i class="e-azul"></i><i class="e-rojo"></i></div>
+    </aside>
+  </div>
+  <div class="cinta" aria-hidden="true"><div class="cinta-pista" id="cinta"></div></div>
+</section>
+
+<!-- ====== antes / ahora ====== -->
+<section class="seccion" id="antes-ahora">
+  <div class="wrap">
+    <div class="cabecera revelar">
+      <span class="eyebrow">Antes / ahora</span>
+      <h2 class="pixel">De “saca un ticket” a “ya lo tienes”</h2>
+    </div>
+    <div class="versus">
+      <div class="lado hoy revelar">
+        <div class="lado-tit pixel"><svg data-pixel="reloj"></svg> Hoy</div>
+        <ol class="pasos">
+          <li><b>Lees en la tienda</b> que para Mercado Pago o transferencia hay que ir al Discord.</li>
+          <li><b>Abres un ticket</b> y esperas a que un staff lo vea.</li>
+          <li><b>Te pasan los datos</b>, pagas y mandas el comprobante.</li>
+          <li><b>Esperas otra vez</b> a que lo revisen y te lo entreguen a mano.</li>
+        </ol>
+        <p class="nota">Y si es de noche o hay torneo, la compra se enfría. Más de uno no vuelve.</p>
+      </div>
+      <div class="vs pixel" aria-hidden="true">VS</div>
+      <div class="lado ahora revelar">
+        <div class="lado-tit pixel"><svg data-pixel="rayo"></svg> Con esto</div>
+        <ol class="pasos">
+          <li><b>Eliges</b> rango, partida o sanción. Ves el precio en tu moneda.</li>
+          <li><b>Pagas con Mercado Pago</b> (−10 %), transferencia o PayPal.</li>
+          <li><b>Juegas.</b> El servidor lo entrega en segundos, aunque sean las 4 de la mañana.</li>
+        </ol>
+        <p class="nota">El staff deja de hacer de cajero y vuelve a lo suyo: organizar partidas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== oferta semanal ====== -->
+<section class="seccion" id="oferta">
+  <div class="wrap">
+    <div class="oferta revelar">
+      <div class="oferta-cinta pixel">Oferta semanal · se renueva cada martes</div>
+      <div class="oferta-grid">
+        <div class="oferta-img">
+          <img src="" data-img="https://dunb17ur4ymx4.cloudfront.net/packages/images/7b78bd6a8087be6192ca0a1dff535c41cfc07835.webp" alt="Rank Jolly+" class="flota">
+          <img src="" data-img="https://dunb17ur4ymx4.cloudfront.net/packages/images/7b78bd6a8087be6192ca0a1dff535c41cfc07835.webp" alt="" class="flota dos">
+          <span class="x2 pixel">x2</span>
+        </div>
+        <div class="oferta-txt">
+          <h2 class="pixel">2 Rank Jolly+</h2>
+          <p class="muted">Uno para ti y otro para un amigo (o los dos para ti). Prefijo Jolly+, chat en colores, /nick, 100 % de probabilidad de jugar en todas las partidas y más.</p>
+          <div class="oferta-precio">
+            <s id="oferta-antes"></s>
+            <b class="pixel" id="oferta-precio"></b>
+            <span class="ahorro pixel">−50 %</span>
+          </div>
+          <p class="mp-linea" id="oferta-mp"></p>
+          <div class="cuenta" aria-label="Termina en">
+            <div><b class="pixel" id="c-d">0</b><span>días</span></div>
+            <div><b class="pixel" id="c-h">00</b><span>horas</span></div>
+            <div><b class="pixel" id="c-m">00</b><span>min</span></div>
+            <div><b class="pixel" id="c-s">00</b><span>seg</span></div>
+          </div>
+          <div class="cta">
+            <button class="btn amarillo" id="btn-oferta"><svg data-pixel="regalo"></svg> Comprar oferta</button>
+            <span class="muted pequeno">Termina el martes a las 00:00 (hora de Argentina). La semana pasada: 1 Jolly Gold + 1 partida de 4/5 games por 20,49 USD.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== configurador de partida ====== -->
+<section class="seccion" id="partida">
+  <div class="wrap">
+    <div class="cabecera revelar">
+      <span class="eyebrow">Producto estrella</span>
+      <h2 class="pixel">Arma tu partida</h2>
+      <p class="muted">Lo que no tiene ningún otro servidor: compras una partida entera y decides tú las reglas. Lo eliges aquí y el servidor la monta sola al pagar.</p>
+    </div>
+
+    <div class="config">
+      <div class="config-pasos">
+        <div class="paso revelar">
+          <div class="paso-tit"><span class="n pixel">1</span> Tipo de partida</div>
+          <div class="opciones tipos" id="tipos"></div>
+        </div>
+
+        <div class="paso revelar">
+          <div class="paso-tit"><span class="n pixel">2</span> Juegos <span class="contador pixel" id="contador-juegos">0/4</span></div>
+          <p class="muted pequeno" id="ayuda-juegos">Elige 4 juegos.</p>
+          <div class="juegos" id="juegos"></div>
+        </div>
+
+        <div class="paso revelar">
+          <div class="paso-tit"><span class="n pixel">3</span> Orden de los juegos</div>
+          <div class="opciones" id="orden"></div>
+          <ol class="lista-orden oculto" id="lista-orden"></ol>
+        </div>
+
+        <div class="paso revelar">
+          <div class="paso-tit"><span class="n pixel">4</span> Elección de equipos</div>
+          <div class="opciones" id="eleccion"></div>
+        </div>
+
+        <div class="paso revelar">
+          <div class="paso-tit"><span class="n pixel">5</span> Cantidad de equipos</div>
+          <div class="opciones" id="tamano"></div>
+          <label class="interruptor"><input type="checkbox" id="whitelist"><span class="palanca"></span> Whitelist en la purga</label>
+        </div>
+
+        <div class="paso revelar">
+          <div class="paso-tit"><span class="n pixel">6</span> <span id="tit-bypass">Bypass para tus amigos</span></div>
+          <p class="muted pequeno" id="ayuda-bypass">Hasta 5 jugadores entran seguro (1 en duos/trios).</p>
+          <div class="bypass" id="bypass"></div>
+        </div>
+      </div>
+
+      <aside class="resumen" id="resumen">
+        <div class="resumen-tit pixel">Tu partida</div>
+        <div class="resumen-cuerpo" id="resumen-cuerpo"></div>
+        <div class="resumen-precio">
+          <span class="muted">Total</span>
+          <b class="pixel" id="resumen-precio"></b>
+        </div>
+        <p class="mp-linea" id="resumen-mp"></p>
+        <button class="btn amarillo full" id="btn-partida"><svg data-pixel="carro"></svg> Añadir y pagar</button>
+        <p class="muted pequeno centro" id="resumen-falta"></p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ====== rangos ====== -->
+<section class="seccion" id="rangos">
+  <div class="wrap">
+    <div class="cabecera revelar">
+      <span class="eyebrow">Ranks</span>
+      <h2 class="pixel">Rangos</h2>
+      <p class="muted">Las ventajas son las de la tienda actual. Lo nuevo es cómo se pagan.</p>
+    </div>
+    <div class="rangos" id="lista-rangos"></div>
+  </div>
+</section>
+
+<!-- ====== sanciones ====== -->
+<section class="seccion" id="sanciones">
+  <div class="wrap">
+    <div class="cabecera revelar">
+      <span class="eyebrow">Sanctions</span>
+      <h2 class="pixel">Sanciones</h2>
+      <p class="muted">Se levantan solas al confirmarse el pago. Nadie tiene que estar conectado.</p>
+    </div>
+    <div class="sanciones" id="lista-sanciones"></div>
+  </div>
+</section>
+
+<!-- ====== cómo pagar ====== -->
+<section class="seccion" id="pagar">
+  <div class="wrap">
+    <div class="cabecera revelar">
+      <span class="eyebrow">Cómo pagar</span>
+      <h2 class="pixel">Un precio para cada país</h2>
+      <p class="muted">Elige tu país y verás todo en tu moneda, convertido con el cambio del día. Mercado Pago y PayPal mantienen el 10 % de descuento.</p>
+    </div>
+    <div class="paises revelar" id="paises"></div>
+    <div class="metodos revelar" id="metodos-info"></div>
+    <p class="muted pequeno centro revelar">Debajo sigue estando Tebex: los rangos y comandos se entregan igual que ahora, solo cambia la puerta de entrada del pago.</p>
+  </div>
+</section>
+
+<!-- ====== padres y ayuda ====== -->
+<section class="seccion" id="ayuda">
+  <div class="wrap duo">
+    <div class="tarjeta-info revelar">
+      <h3 class="pixel verde"><svg data-pixel="escudo"></svg> Nota para los padres</h3>
+      <p>¿Te preocupa la seguridad de tu hijo? En <b>Jolly Games</b> ofrecemos un entorno protegido y acogedor para todos nuestros jugadores. Promovemos una comunidad amigable donde el respeto y la cordialidad son lo más importante. ¿Tienes alguna inquietud? Escríbenos por nuestro Discord, estamos para ayudarte.</p>
+      <p class="muted pequeno">Los pagos se hacen en Mercado Pago o PayPal, nunca dentro del juego, y cada compra deja comprobante por correo.</p>
+    </div>
+    <div class="tarjeta-info revelar">
+      <h3 class="pixel oro"><svg data-pixel="pregunta"></svg> ¿Y si no recibo mi compra?</h3>
+      <p>Hoy la tienda avisa de que las compras “suelen tardar de 5 a 20 minutos”. Con el pago automático llegan en segundos; en cuanto se aprueba el pago, el servidor te lo da aunque estés desconectado (lo verás al entrar).</p>
+      <p class="muted pequeno">Si algo falla, el pedido queda con número y estado, así el staff lo revisa en un minuto sin pedir capturas.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="pie">
+  <div class="wrap">
+    <div>
+      <span class="pixel"><b class="azul">JOLLY</b> <b class="rojo">GAMES</b></span>
+      <p>Maqueta de demostración, no es la tienda oficial. Productos, precios y ventajas tomados de la tienda pública de Jolly Games (Tebex); jugadores en línea en vivo; la oferta semanal es la publicada en su Discord; lo marcado como <span class="ejemplo">ejemplo</span> es de muestra. Los pagos son simulados. Diseñada y programada por Maikel Ferrer.</p>
+      <p class="muted pequeno">Partidas en directo con Dogmy en kick.com/dogmy.</p>
+    </div>
+    <span class="muted">No afiliado a Mojang ni Microsoft.</span>
+  </div>
+</footer>
+
+<!-- ====== carrito / checkout ====== -->
+<div class="capa" id="capa"></div>
+<aside class="checkout" id="checkout" aria-label="Pago" aria-hidden="true">
+  <header>
+    <span class="pixel">Pagar</span>
+    <button class="cerrar" data-cerrar aria-label="Cerrar">✕</button>
+  </header>
+  <div class="checkout-cuerpo" id="checkout-cuerpo"></div>
+</aside>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="app.js?v=4"></script>
+</body>
+</html>

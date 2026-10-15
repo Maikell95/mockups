@@ -1,0 +1,480 @@
+{
+ "ranks": [
+  {
+   "id": 7469899,
+   "nombre": "Rank Gold [Monthly]",
+   "precio": 40.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/fc41d84b29ee483e9db2f19a25d5333e824536cb.png",
+   "ventajas": [
+    [
+     "🏷",
+     "Obtendrás el prefijo Jolly Gold visible en el chat y en el tabulador."
+    ],
+    [
+     "🔵",
+     "Recibirás el rol @Jolly Gold Rank en nuestro Discord."
+    ],
+    [
+     "🔖",
+     "Obtendrás todos los beneficios del Jolly+ Rank."
+    ],
+    [
+     "🏳",
+     "Podrás realizar 1 partida personalizada por día."
+    ],
+    [
+     "🎮",
+     "En todas las partidas tendrás 2 bypass para dar."
+    ],
+    [
+     "📮",
+     "En la SUB-QUEUE tendrás 100% de probabilidad de entrar como suplente."
+    ]
+   ]
+  },
+  {
+   "id": 6954080,
+   "nombre": "Rank Jolly+ [Monthly]",
+   "precio": 10.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/7b78bd6a8087be6192ca0a1dff535c41cfc07835.webp",
+   "ventajas": [
+    [
+     "🏷",
+     "Obtendrás el prefijo Jolly+ visible en el chat y en el tabulador."
+    ],
+    [
+     "🎨",
+     "Podrás escribir en colores en el chat."
+    ],
+    [
+     "🖊",
+     "Acceso al comando /nick para personalizar tu nombre."
+    ],
+    [
+     "🏳",
+     "No serás forzado a ser capitán en las partidas."
+    ],
+    [
+     "🎮",
+     "En todas las partidas tendrás 100% de probabilidad de jugar."
+    ],
+    [
+     "⚔",
+     "Acceso exclusivo al comando /arena."
+    ],
+    [
+     "🏹",
+     "Acceso a rastros de flechas."
+    ],
+    [
+     "🪽",
+     "Tendrás Elytra en el lobby."
+    ],
+    [
+     "🛡",
+     "Personalización de armadura."
+    ],
+    [
+     "🛡",
+     "Personalización de escudo."
+    ],
+    [
+     "📏",
+     "Podrás cambiar tu tamaño en el lobby."
+    ],
+    [
+     "📬",
+     "Personalización de mensaje de entrada."
+    ],
+    [
+     "☠",
+     "Acceso a todos los mensajes de muerte."
+    ]
+   ]
+  },
+  {
+   "id": 6831337,
+   "nombre": "Rank Jolly [Permanent]",
+   "precio": 15.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/a80c68a6de9f09414d4a5722664e1b3cd609d648.png",
+   "ventajas": [
+    [
+     "🏷",
+     "Obtendrás el prefijo Jolly visible en el chat y en el tabulador."
+    ],
+    [
+     "🔵",
+     "Recibirás el rol @Jolly Rank en nuestro Discord."
+    ],
+    [
+     "🔵",
+     "Podrás enviar GIFs en el chat general de nuestro Discord."
+    ],
+    [
+     "🎮",
+     "En todas las partidas contarás con un multiplicador x2.5 en tickets."
+    ],
+    [
+     "📮",
+     "En la SUB-QUEUE tendrás 30% de entrar como suplente."
+    ],
+    [
+     "🎩",
+     "Acceso a todos los sombreros disponibles (excepto los exclusivos)."
+    ],
+    [
+     "⚔",
+     "Acceso exclusivo al comando /arena ."
+    ],
+    [
+     "🏹",
+     "Acceso a rastros de flechas."
+    ],
+    [
+     "🪽",
+     "Tendrás Elytra y Wind Charges en el lobby."
+    ],
+    [
+     "📬",
+     "Personalización de mensaje de entrada."
+    ],
+    [
+     "☠",
+     "Acceso a todos los mensajes de muerte."
+    ]
+   ]
+  }
+ ],
+ "games": [
+  {
+   "id": 6834127,
+   "nombre": "Partida [4 Games]",
+   "precio": 5.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/18c1e259cc979356a6f1c343fa91b098168819e8.png",
+   "ventajas": [
+    [
+     "🚀",
+     "Podrás elegir hasta 5 jugadores para que reciban bypass (1 en duo/trio)."
+    ],
+    [
+     "🚩",
+     "Decide cómo se realizará la elección de equipos (Draft, Double Market, Market, Captains, Duos, Trios)."
+    ],
+    [
+     "🧮",
+     "Elige el orden de los modos (Votación, Aleatorio u Orden personalizado)."
+    ],
+    [
+     "🏹",
+     "Selecciona los modos activos (Survival Games, SkyWars, Spleef, BattleBox, Race, Walls, Beep Test, Party)."
+    ],
+    [
+     "🏳",
+     "Define la cantidad de equipos en la partida."
+    ],
+    [
+     "✔",
+     "ELO activado durante la partida."
+    ],
+    [
+     "✔",
+     "Estadísticas activadas durante la partida."
+    ]
+   ]
+  },
+  {
+   "id": 7118787,
+   "nombre": "Partida [5 Games]",
+   "precio": 6.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/18c1e259cc979356a6f1c343fa91b098168819e8.png",
+   "ventajas": [
+    [
+     "🚀",
+     "Podrás elegir hasta 5 jugadores para que reciban bypass (1 en duo/trio)."
+    ],
+    [
+     "🚩",
+     "Decide cómo se realizará la elección de equipos (Draft, Double Market, Market, Captains, Duos, Trios)."
+    ],
+    [
+     "🧮",
+     "Elige el orden de los modos (Votación, Aleatorio u Orden personalizado)."
+    ],
+    [
+     "🏹",
+     "Selecciona los modos activos (Survival Games, SkyWars, Spleef, BattleBox, Race, Walls, Beep Test, Party)."
+    ],
+    [
+     "🏳",
+     "Define la cantidad de equipos en la partida."
+    ],
+    [
+     "✔",
+     "ELO activado durante la partida."
+    ],
+    [
+     "✔",
+     "Estadísticas activadas durante la partida."
+    ]
+   ]
+  },
+  {
+   "id": 6834126,
+   "nombre": "Partida [6 Games]",
+   "precio": 7.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/18c1e259cc979356a6f1c343fa91b098168819e8.png",
+   "ventajas": [
+    [
+     "🚀",
+     "Podrás elegir hasta 5 jugadores para que reciban bypass (1 en duo/trio)."
+    ],
+    [
+     "🚩",
+     "Decide cómo se realizará la elección de equipos (Draft, Double Market, Market, Captains, Duos, Trios)."
+    ],
+    [
+     "🧮",
+     "Elige el orden de los modos (Votación, Aleatorio u Orden personalizado)."
+    ],
+    [
+     "🏹",
+     "Selecciona los modos activos (Survival Games, SkyWars, Spleef, BattleBox, Race, Walls, Beep Test, Party)."
+    ],
+    [
+     "🏳",
+     "Define la cantidad de equipos en la partida."
+    ],
+    [
+     "✔",
+     "ELO activado durante la partida."
+    ],
+    [
+     "✔",
+     "Estadísticas activadas durante la partida."
+    ]
+   ]
+  },
+  {
+   "id": 7118788,
+   "nombre": "Partida [7 Games]",
+   "precio": 8.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/18c1e259cc979356a6f1c343fa91b098168819e8.png",
+   "ventajas": [
+    [
+     "🚀",
+     "Podrás elegir hasta 5 jugadores para que reciban bypass (1 en duo/trio)."
+    ],
+    [
+     "🚩",
+     "Decide cómo se realizará la elección de equipos (Draft, Double Market, Market, Captains, Duos, Trios)."
+    ],
+    [
+     "🧮",
+     "Elige el orden de los modos (Votación, Aleatorio u Orden personalizado)."
+    ],
+    [
+     "🏹",
+     "Selecciona los modos activos (Survival Games, SkyWars, Spleef, BattleBox, Race, Walls, Beep Test, Party)."
+    ],
+    [
+     "🏳",
+     "Define la cantidad de equipos en la partida."
+    ],
+    [
+     "✔",
+     "ELO activado durante la partida."
+    ],
+    [
+     "✔",
+     "Estadísticas activadas durante la partida."
+    ]
+   ]
+  },
+  {
+   "id": 6834123,
+   "nombre": "Partida [8 Games]",
+   "precio": 9.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/18c1e259cc979356a6f1c343fa91b098168819e8.png",
+   "ventajas": [
+    [
+     "🚀",
+     "Podrás elegir hasta 5 jugadores para que reciban bypass (1 en duo/trio)."
+    ],
+    [
+     "🚩",
+     "Decide cómo se realizará la elección de equipos (Draft, Double Market, Market, Captains, Duos, Trios)."
+    ],
+    [
+     "🧮",
+     "Elige el orden de los modos (Votación, Aleatorio u Orden personalizado)."
+    ],
+    [
+     "🏹",
+     "Selecciona los modos activos (Survival Games, SkyWars, Spleef, BattleBox, Race, Walls, Beep Test, Party)."
+    ],
+    [
+     "🏳",
+     "Define la cantidad de equipos en la partida."
+    ],
+    [
+     "✔",
+     "ELO activado durante la partida."
+    ],
+    [
+     "✔",
+     "Estadísticas activadas durante la partida."
+    ]
+   ]
+  },
+  {
+   "id": 6831356,
+   "nombre": "Partida Privada",
+   "precio": 15.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/d46732627af4801ec5dc0f25cc02c74a399e1234.png",
+   "ventajas": [
+    [
+     "👥",
+     "Podrás elegir todas las personas que quieras que jueguen."
+    ],
+    [
+     "🚩",
+     "Decide cómo se realizará la elección de equipos (Draft, Double Market, Market, Captains, Duos, Trios)."
+    ],
+    [
+     "🧮",
+     "Elige el orden de los modos (Votación, Aleatorio u Orden personalizado)."
+    ],
+    [
+     "🏹",
+     "Selecciona los modos activos (Survival Games, SkyWars, Spleef, BattleBox, Race, Walls, Beep Test, Party)."
+    ],
+    [
+     "🏳",
+     "Define la cantidad de equipos en la partida."
+    ],
+    [
+     "❌",
+     "ELO desactivado durante la partida."
+    ],
+    [
+     "❌",
+     "Estadísticas desactivadas durante la partida."
+    ]
+   ]
+  }
+ ],
+ "sanciones": [
+  {
+   "id": 6686034,
+   "nombre": "Unban Global",
+   "precio": 5.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/cd136717d74ed6e73d87184afd3c84a6f7e812ac.png",
+   "ventajas": [
+    [
+     "🚫",
+     "Eliminación de sanción (Unban) en el servidor."
+    ],
+    [
+     "🔓",
+     "Recupera el acceso inmediato a todas las modalidades."
+    ],
+    [
+     "⚡",
+     "Proceso rápido y automático tras la compra."
+    ],
+    [
+     "❌",
+     "No aplica a baneos por cheating/blacklist."
+    ],
+    [
+     "⚠",
+     "¡Dato! Asegúrate de no volver a incumplir las reglas para evitar futuras sanciones."
+    ]
+   ]
+  },
+  {
+   "id": 6834157,
+   "nombre": "Unmute Global",
+   "precio": 3.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/cd136717d74ed6e73d87184afd3c84a6f7e812ac.png",
+   "ventajas": [
+    [
+     "🔇",
+     "Eliminación de sanción de chat (Unmute)."
+    ],
+    [
+     "💬",
+     "Recupera la capacidad de enviar mensajes en el servidor."
+    ],
+    [
+     "⚡",
+     "Proceso rápido y automático tras la compra."
+    ],
+    [
+     "⚠",
+     "¡Dato! Evita incumplir las reglas para no recibir futuras sanciones."
+    ]
+   ]
+  },
+  {
+   "id": 7098419,
+   "nombre": "Unban Cheating",
+   "precio": 10.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/cd136717d74ed6e73d87184afd3c84a6f7e812ac.png",
+   "ventajas": [
+    [
+     "⛔",
+     "Eliminación de blacklist en el servidor."
+    ],
+    [
+     "🔓",
+     "Recupera el acceso completo a todas las funciones."
+    ],
+    [
+     "⚡",
+     "Proceso rápido y automático tras la compra."
+    ],
+    [
+     "⚠",
+     "¡Dato! Evita incumplir las reglas para no volver a ser sancionado."
+    ]
+   ]
+  },
+  {
+   "id": 6834158,
+   "nombre": "Desblacklist Global",
+   "precio": 30.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/cd136717d74ed6e73d87184afd3c84a6f7e812ac.png",
+   "ventajas": [
+    [
+     "⛔",
+     "Serás desblacklisteado del servidor de Minecraft y de Discord."
+    ]
+   ]
+  },
+  {
+   "id": 6841914,
+   "nombre": "Statistics Reset",
+   "precio": 7.49,
+   "img": "https://dunb17ur4ymx4.cloudfront.net/packages/images/3bc6a20ae61232f84e85c820f09c5eec3f1905aa.png",
+   "ventajas": [
+    [
+     "🔄",
+     "Restablecimiento completo de tus estadísticas."
+    ],
+    [
+     "📊",
+     "Reinicia tu progreso para empezar desde cero."
+    ],
+    [
+     "⚡",
+     "Proceso rápido y automático tras la compra."
+    ],
+    [
+     "⚠",
+     "¡Dato! Esta acción es permanente y no se puede deshacer."
+    ]
+   ]
+  }
+ ]
+}
