@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/mockups/cobblequest/images/resultado.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Cobble Quest Network - Servidor de Cobblemon en Minecraft." />
+    <meta name="theme-color" content="#0e1714" />
+    <title>Cobble Quest · Vista previa del rediseño</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="La nueva web de Cobble Quest · Vista previa" />
+    <meta property="og:description" content="Un día en el mundo de Cobblemon: Pokémon 3D animados, luz de shaders y tienda, rangos y Cobbledex rediseñados." />
+    <meta property="og:image" content="https://maikell95.github.io/mockups/cobblequest/og.png" />
+    <meta property="og:url" content="https://maikell95.github.io/mockups/cobblequest/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://maikell95.github.io/mockups/cobblequest/og.png" />
+
+    <link rel="preconnect" href="https://www.youtube-nocookie.com">
+    <link rel="preconnect" href="https://www.google.com">
+    <link rel="preconnect" href="https://i.ytimg.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Outfit:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/mockups/cobblequest/assets/index-1JWSd1WD.js"></script>
+    <link rel="stylesheet" crossorigin href="/mockups/cobblequest/assets/index-CPn077xN.css">
+  </head>
+  <body>
+    <!-- Initial loading screen -->
+    <style>
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        background: #0e1714;
+        transition: opacity 0.5s ease;
+        overflow: hidden;
+      }
+      #initial-loader.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #initial-loader .walker {
+        width: 140px;
+        height: auto;
+        animation: walk-bounce 0.6s ease-in-out infinite, walk-sway 1.2s ease-in-out infinite;
+        filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+      }
+      @keyframes walk-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-12px); }
+      }
+      @keyframes walk-sway {
+        0%, 100% { transform: translateX(-6px) rotate(-2deg); }
+        50% { transform: translateX(6px) rotate(2deg); }
+      }
+      #initial-loader p {
+        font-family: 'Silkscreen', cursive;
+        color: #a0a0b8;
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+      }
+      #initial-loader .dots::after {
+        content: '';
+        animation: dots 1.4s steps(4, end) infinite;
+      }
+      @keyframes dots {
+        0% { content: ''; }
+        25% { content: '.'; }
+        50% { content: '..'; }
+        75% { content: '...'; }
+      }
+    </style>
+    <div id="initial-loader">
+      <img id="loader-img" class="walker" alt="Cargando" />
+      <p>Cargando<span class="dots"></span></p>
+    </div>
+    <div id="root"></div>
+    <script>
+      document.getElementById('loader-img').src = '/mockups/cobblequest/images/pokemon/croagunk-cobblemon.webp';
+      // Fallback: dismiss after 10s if React fails to load
+      setTimeout(function() {
+        var loader = document.getElementById('initial-loader');
+        if (loader) {
+          loader.classList.add('fade-out');
+          setTimeout(function() { loader.remove(); }, 500);
+        }
+      }, 10000);
+    </script>
+  </body>
+</html>
